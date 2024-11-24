@@ -1,0 +1,268 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          BigInt    @id @default(autoincrement())
+  name        String    @db.VarChar(125)
+  email       String    @unique @db.VarChar(50)
+  numberPhone String    @db.VarChar(15)
+  gender      Gender?
+  password    String    @db.VarChar(100)
+  otp         String?   @db.VarChar(6)
+  role        Role      @default(buyer)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime? @map("updated_at")
+  verifiedAt  DateTime? @map("verified_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  transaction Transaction[]
+
+  @@map("users")
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum Role {
+  admin
+  buyer
+}
+
+model Continent {
+  id   BigInt @id @default(autoincrement())
+  name String @db.VarChar(100)
+
+  country Country[]
+
+  @@map("continents")
+}
+
+model Country {
+  id          BigInt @id @default(autoincrement())
+  continentId BigInt @map("continent_id")
+  name        String @db.VarChar(100)
+
+  continent Continent @relation(fields: [continentId], references: [id])
+  city      City[]
+
+  @@map("countries")
+}
+
+model City {
+  id        BigInt @id @default(autoincrement())
+  countryId BigInt @map("country_id")
+  name      String @db.VarChar(100)
+  cityCode  String @map("city_code") @db.VarChar(5)
+
+  country Country   @relation(fields: [countryId], references: [id])
+  airport Airport[]
+
+  @@map("cities")
+}
+
+model Airport {
+  id       BigInt @id @default(autoincrement())
+  cityId   BigInt @map("city_id")
+  name     String @db.VarChar(150)
+  iataCode String @map("iata_code") @db.VarChar(5)
+
+  flightFrom Flight[] @relation("departureAirportFlight")
+  flightTo   Flight[] @relation("destinationAirportFlight")
+
+  city     City       @relation(fields: [cityId], references: [id])
+  terminal Terminal[]
+
+  @@map("airports")
+}
+
+model Terminal {
+  id        BigInt @id @default(autoincrement())
+  name      String @db.VarChar(125)
+  airportId BigInt @map("airport_id")
+
+  airport Airport  @relation(fields: [airportId], references: [id])
+  flight  Flight[]
+
+  @@map("terminals")
+}
+
+model Airline {
+  id   BigInt  @id @default(autoincrement())
+  name String  @db.VarChar(125)
+  logo String? @db.VarChar(100)
+
+  airplane Airplane[]
+  flight   Flight[]
+
+  @@map("airlines")
+}
+
+model Airplane {
+  id           BigInt  @id @default(autoincrement())
+  airlineId    BigInt  @map("airline_id")
+  airplaneCode String  @map("airplane_code") @db.VarChar(10)
+  totalSeat    Int     @map("total_seat")
+  baggage      Int
+  cabinBaggage Int     @map("cabin_baggage")
+  description  String? @db.Text
+
+  seat    Seat[]
+  airline Airline @relation(fields: [airlineId], references: [id])
+
+  @@map("airplanes")
+}
+
+model Seat {
+  id         BigInt     @id @default(autoincrement())
+  airplaneId BigInt     @map("airplane_id")
+  code       String     @db.VarChar(10)
+  status     StatusSeat @default(available)
+  class      ClassSeat
+  price      Decimal    @db.Decimal
+
+  airplane   Airplane    @relation(fields: [airplaneId], references: [id])
+  passengers Passenger[]
+
+  @@map("seats")
+}
+
+enum StatusSeat {
+  available
+  booked
+}
+
+enum ClassSeat {
+  economy
+  business
+}
+
+model Flight {
+  id                   BigInt   @id @default(autoincrement())
+  airlineId            BigInt   @map("airline_id")
+  departureAirportId   BigInt   @map("departure_airport_id")
+  departureTerminalId  BigInt?  @map("departure_terminal_id")
+  destinationAirportId BigInt   @map("destination_airport_id")
+  departureDate        DateTime @map("departure_date")
+  departureTime        DateTime @map("departure_time")
+  arrivalDate          DateTime @map("arrival_date")
+  arrivalTime          DateTime @map("arrival_time")
+
+  airline            Airline   @relation(fields: [airlineId], references: [id])
+  departureAirport   Airport   @relation("departureAirportFlight", fields: [departureAirportId], references: [id])
+  destinationAirport Airport   @relation("destinationAirportFlight", fields: [destinationAirportId], references: [id])
+  departureTerminal  Terminal? @relation(fields: [departureTerminalId], references: [id])
+
+  transaction Transaction[]
+
+  @@map("flights")
+}
+
+model Orderer {
+  id          BigInt  @id @default(autoincrement())
+  fullname    String  @db.VarChar(125)
+  familyName  String? @map("family_name") @db.VarChar(125)
+  numberPhone String  @map("number_phone") @db.VarChar(15)
+  email       String  @unique @db.VarChar(50)
+  bookingCode String  @unique @map("booking_code") @db.VarChar(15)
+
+  pasengger   Passenger[]
+  transaction Transaction[]
+
+  @@map("orderers")
+}
+
+model Passenger {
+  id               BigInt          @id @default(autoincrement())
+  orderedId        BigInt          @map("ordered_id")
+  seatId           BigInt?         @map("seat_id")
+  title            TitlePassenger?
+  fullname         String          @db.VarChar(125)
+  passengerType    PassengerType   @map("passenger_type")
+  familyName       String?         @map("family_name") @db.VarChar(125)
+  birthDate        DateTime        @map("birth_date")
+  citizenship      String          @db.VarChar(50)
+  identityNumber   String          @map("identity_number") @db.VarChar(25)
+  publisherCountry String          @db.VarChar(50)
+  expiredAt        DateTime?       @map("expired_at")
+
+  order Orderer @relation(fields: [orderedId], references: [id])
+  seat  Seat?   @relation(fields: [seatId], references: [id])
+
+  @@map("passengers")
+}
+
+enum PassengerType {
+  adult
+  child
+  baby
+}
+
+enum TitlePassenger {
+  mr
+  mrs
+  boy
+  girl
+}
+
+model Transaction {
+  id        BigInt            @id @default(autoincrement())
+  userId    BigInt            @map("user_id")
+  ordererId BigInt            @map("orderer_id")
+  flightId  BigInt            @map("flight_id")
+  status    StatusTransaction @default(unpaid)
+  amount    Decimal           @default(0)
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime?         @map("updated_at")
+
+  paymentDetail PaymentDetail?
+
+  user   User    @relation(fields: [userId], references: [id])
+  order  Orderer @relation(fields: [ordererId], references: [id])
+  flight Flight  @relation(fields: [flightId], references: [id])
+
+  @@map("transactions")
+}
+
+enum StatusTransaction {
+  issued
+  unpaid
+  cancelled
+}
+
+model PaymentDetail {
+  id                   BigInt      @id @default(autoincrement())
+  transactionId        BigInt      @unique @map("transaction_id")
+  paymentType          PaymentType @map("payment_type")
+  gopayQrCodeUrl       String?     @map("gopay_qr_code_url") @db.VarChar(255)
+  virtualAccountNumber String?     @map("virtual_account_number") @db.VarChar(50)
+  cardNumber           String?     @map("card_number") @db.VarChar(20)
+  cardHolderName       String?     @map("card_holder_name") @db.VarChar(100)
+  expiryDate           String?     @map("expiry_date") @db.VarChar(7)
+  cvv                  String?     @db.VarChar(3)
+  createdAt            DateTime    @default(now()) @map("created_at")
+  updatedAt            DateTime?   @map("updated_at")
+
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("payment_details")
+}
+
+enum PaymentType {
+  gopay
+  virtual_account
+  credit_card
+}

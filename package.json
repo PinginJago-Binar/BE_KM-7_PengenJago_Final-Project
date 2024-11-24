@@ -5,8 +5,12 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon src/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:dev": "nodemon ./src/server.js",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate-dev": "npx prisma migrate dev --name",
+    "prisma:format": "npx prisma format",
+    "prisma:show": "npx prisma studio",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest"
   },
   "author": "pengenjago team's",
   "license": "ISC",
@@ -15,7 +19,9 @@
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
     "express": "^4.21.1",
+    "express-ejs-layouts": "^2.5.1",
     "imagekit": "^5.2.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
@@ -26,6 +32,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
+    "@jest/globals": "^29.7.0",
     "eslint": "^9.15.0",
     "globals": "^15.12.0",
     "jest": "^29.7.0",

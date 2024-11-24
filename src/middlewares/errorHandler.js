@@ -1,8 +1,11 @@
-const errorHandler = (err, req, res, _next) => {
-  return res.status(500).json({
+const errorHandler = (err, req, res, next) => {
+  console.log(err.stack);
+  const statusCode = err.status || 500;
+
+  res.status(statusCode).json({
+    status: statusCode,
     message: err.message,
-    errorId: res.sentry || "Unknown Error ID",
   });
-};
+}
 
 export default errorHandler;
