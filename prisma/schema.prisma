@@ -17,7 +17,7 @@ model User {
   id          BigInt    @id @default(autoincrement())
   name        String    @db.VarChar(125)
   email       String    @unique @db.VarChar(50)
-  numberPhone String    @db.VarChar(15)
+  numberPhone String    @map("number_phone") @db.VarChar(15)
   gender      Gender?
   password    String    @db.VarChar(100)
   otp         String?   @db.VarChar(6)
@@ -219,14 +219,17 @@ enum TitlePassenger {
 }
 
 model Transaction {
-  id        BigInt            @id @default(autoincrement())
-  userId    BigInt            @map("user_id")
-  ordererId BigInt            @map("orderer_id")
-  flightId  BigInt            @map("flight_id")
-  status    StatusTransaction @default(unpaid)
-  amount    Decimal           @default(0)
-  createdAt DateTime          @default(now()) @map("created_at")
-  updatedAt DateTime?         @map("updated_at")
+  id             BigInt            @id @default(autoincrement())
+  userId         BigInt            @map("user_id")
+  ordererId      BigInt            @map("orderer_id")
+  flightId       BigInt            @map("flight_id")
+  status         StatusTransaction @default(unpaid)
+  amount         Decimal           @default(0)
+  amountAfterTax Decimal           @default(0) @map("amount_after_tax")
+  expiredPayment DateTime?         @map("expired_payment")
+  expiredFilling DateTime?         @map("expired_filling")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime?         @map("updated_at")
 
   paymentDetail PaymentDetail?
 
