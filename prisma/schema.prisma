@@ -105,7 +105,7 @@ model Airline {
   name String  @db.VarChar(125)
   logo String? @db.VarChar(100)
 
-  airplane Airplane[]  
+  airplane Airplane[]
 
   @@map("airlines")
 }
@@ -120,8 +120,8 @@ model Airplane {
   description  String? @db.Text
 
   seat    Seat[]
-  flight   Flight[]
-  airline Airline @relation(fields: [airlineId], references: [id])
+  flight  Flight[]
+  airline Airline  @relation(fields: [airlineId], references: [id])
 
   @@map("airplanes")
 }
@@ -177,7 +177,7 @@ model Orderer {
   familyName  String? @map("family_name") @db.VarChar(125)
   numberPhone String  @map("number_phone") @db.VarChar(15)
   email       String  @unique @db.VarChar(50)
-  bookingCode String  @unique @map("booking_code") @db.VarChar(15)
+  bookingCode String? @unique @map("booking_code") @db.VarChar(15)
 
   pasengger   Passenger[]
   transaction Transaction[]
@@ -187,20 +187,20 @@ model Orderer {
 
 model Passenger {
   id               BigInt          @id @default(autoincrement())
-  orderedId        BigInt          @map("ordered_id")
+  orderedId        BigInt?         @map("ordered_id")
   seatId           BigInt?         @map("seat_id")
   title            TitlePassenger?
-  fullname         String          @db.VarChar(125)
+  fullname         String?         @db.VarChar(125)
   passengerType    PassengerType   @map("passenger_type")
   familyName       String?         @map("family_name") @db.VarChar(125)
-  birthDate        DateTime        @map("birth_date")
-  citizenship      String          @db.VarChar(50)
-  identityNumber   String          @map("identity_number") @db.VarChar(25)
-  publisherCountry String          @db.VarChar(50) @map("publisher_country")
+  birthDate        DateTime?       @map("birth_date")
+  citizenship      String?         @db.VarChar(50)
+  identityNumber   String?         @map("identity_number") @db.VarChar(25)
+  publisherCountry String?         @map("publisher_country") @db.VarChar(50)
   expiredAt        DateTime?       @map("expired_at")
 
-  order Orderer @relation(fields: [orderedId], references: [id])
-  seat  Seat?   @relation(fields: [seatId], references: [id])
+  order Orderer? @relation(fields: [orderedId], references: [id])
+  seat  Seat?    @relation(fields: [seatId], references: [id])
 
   @@map("passengers")
 }
@@ -221,11 +221,11 @@ enum TitlePassenger {
 model Transaction {
   id             BigInt            @id @default(autoincrement())
   userId         BigInt            @map("user_id")
-  ordererId      BigInt            @map("orderer_id")
+  ordererId      BigInt?           @map("orderer_id")
   flightId       BigInt            @map("flight_id")
   status         StatusTransaction @default(unpaid)
-  amount         Decimal           @default(0)
-  amountAfterTax Decimal           @default(0) @map("amount_after_tax")
+  amount         Decimal?          @default(0)
+  amountAfterTax Decimal?          @default(0) @map("amount_after_tax")
   expiredPayment DateTime?         @map("expired_payment")
   expiredFilling DateTime?         @map("expired_filling")
   createdAt      DateTime          @default(now()) @map("created_at")
@@ -233,9 +233,9 @@ model Transaction {
 
   paymentDetail PaymentDetail?
 
-  user   User    @relation(fields: [userId], references: [id])
-  order  Orderer @relation(fields: [ordererId], references: [id])
-  flight Flight  @relation(fields: [flightId], references: [id])
+  user   User     @relation(fields: [userId], references: [id])
+  order  Orderer? @relation(fields: [ordererId], references: [id])
+  flight Flight   @relation(fields: [flightId], references: [id])
 
   @@map("transactions")
 }
