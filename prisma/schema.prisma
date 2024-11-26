@@ -105,8 +105,7 @@ model Airline {
   name String  @db.VarChar(125)
   logo String? @db.VarChar(100)
 
-  airplane Airplane[]
-  flight   Flight[]
+  airplane Airplane[]  
 
   @@map("airlines")
 }
@@ -121,6 +120,7 @@ model Airplane {
   description  String? @db.Text
 
   seat    Seat[]
+  flight   Flight[]
   airline Airline @relation(fields: [airlineId], references: [id])
 
   @@map("airplanes")
@@ -152,7 +152,7 @@ enum ClassSeat {
 
 model Flight {
   id                   BigInt   @id @default(autoincrement())
-  airlineId            BigInt   @map("airline_id")
+  airplaneId           BigInt   @map("airplane_id")
   departureAirportId   BigInt   @map("departure_airport_id")
   departureTerminalId  BigInt?  @map("departure_terminal_id")
   destinationAirportId BigInt   @map("destination_airport_id")
@@ -161,7 +161,7 @@ model Flight {
   arrivalDate          DateTime @map("arrival_date")
   arrivalTime          DateTime @map("arrival_time")
 
-  airline            Airline   @relation(fields: [airlineId], references: [id])
+  airplane           Airplane  @relation(fields: [airplaneId], references: [id])
   departureAirport   Airport   @relation("departureAirportFlight", fields: [departureAirportId], references: [id])
   destinationAirport Airport   @relation("destinationAirportFlight", fields: [destinationAirportId], references: [id])
   departureTerminal  Terminal? @relation(fields: [departureTerminalId], references: [id])
@@ -196,7 +196,7 @@ model Passenger {
   birthDate        DateTime        @map("birth_date")
   citizenship      String          @db.VarChar(50)
   identityNumber   String          @map("identity_number") @db.VarChar(25)
-  publisherCountry String          @db.VarChar(50)
+  publisherCountry String          @db.VarChar(50) @map("publisher_country")
   expiredAt        DateTime?       @map("expired_at")
 
   order Orderer @relation(fields: [orderedId], references: [id])
