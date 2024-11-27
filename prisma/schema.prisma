@@ -157,9 +157,9 @@ model Flight {
   departureTerminalId  BigInt?  @map("departure_terminal_id")
   destinationAirportId BigInt   @map("destination_airport_id")
   departureDate        DateTime @map("departure_date")
-  departureTime        DateTime @map("departure_time")
+  departureTime        DateTime @map("departure_time") @db.Time
   arrivalDate          DateTime @map("arrival_date")
-  arrivalTime          DateTime @map("arrival_time")
+  arrivalTime          DateTime @map("arrival_time") @db.Time
 
   airplane           Airplane  @relation(fields: [airplaneId], references: [id])
   departureAirport   Airport   @relation("departureAirportFlight", fields: [departureAirportId], references: [id])
@@ -227,7 +227,7 @@ model Transaction {
   amount         Decimal?          @default(0)
   amountAfterTax Decimal?          @default(0) @map("amount_after_tax")
   expiredPayment DateTime?         @map("expired_payment")
-  expiredFilling DateTime?         @map("expired_filling")
+  expiredFilling DateTime?         @map("expired_filling") @db.Time()
   createdAt      DateTime          @default(now()) @map("created_at")
   updatedAt      DateTime?         @map("updated_at")
 
