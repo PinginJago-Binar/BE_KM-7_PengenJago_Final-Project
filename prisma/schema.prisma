@@ -131,8 +131,6 @@ model Seat {
   airplaneId BigInt     @map("airplane_id")
   code       String     @db.VarChar(10)
   status     StatusSeat @default(available)
-  class      ClassSeat
-  price      Decimal    @db.Decimal
 
   airplane   Airplane    @relation(fields: [airplaneId], references: [id])
   passengers Passenger[]
@@ -145,30 +143,33 @@ enum StatusSeat {
   booked
 }
 
-enum ClassSeat {
-  economy
-  business
-}
-
 model Flight {
-  id                   BigInt   @id @default(autoincrement())
-  airplaneId           BigInt   @map("airplane_id")
-  departureAirportId   BigInt   @map("departure_airport_id")
-  departureTerminalId  BigInt?  @map("departure_terminal_id")
-  destinationAirportId BigInt   @map("destination_airport_id")
-  departureDate        DateTime @map("departure_date")
-  departureTime        DateTime @map("departure_time")
-  arrivalDate          DateTime @map("arrival_date")
-  arrivalTime          DateTime @map("arrival_time")
+  id                   BigInt    @id @default(autoincrement())
+  airplaneId           BigInt    @map("airplane_id")
+  departureAirportId   BigInt    @map("departure_airport_id")
+  departureTerminalId  BigInt?   @map("departure_terminal_id")
+  destinationAirportId BigInt    @map("destination_airport_id")
+  departureDate        DateTime  @map("departure_date")
+  departureTime        DateTime  @map("departure_time") @db.Time
+  arrivalDate          DateTime  @map("arrival_date")
+  arrivalTime          DateTime  @map("arrival_time") @db.Time
+  class                ClassSeat @default(economy)
+  price                Decimal   @default(0) @db.Decimal
 
   airplane           Airplane  @relation(fields: [airplaneId], references: [id])
   departureAirport   Airport   @relation("departureAirportFlight", fields: [departureAirportId], references: [id])
   destinationAirport Airport   @relation("destinationAirportFlight", fields: [destinationAirportId], references: [id])
   departureTerminal  Terminal? @relation(fields: [departureTerminalId], references: [id])
 
-  transaction Transaction[]
+  departureFlight Transaction[] @relation("departureFlight")
+  returnFlight    Transaction[] @relation("returnFlight")
 
   @@map("flights")
+}
+
+enum ClassSeat {
+  economy
+  business
 }
 
 model Orderer {
@@ -176,7 +177,7 @@ model Orderer {
   fullname    String  @db.VarChar(125)
   familyName  String? @map("family_name") @db.VarChar(125)
   numberPhone String  @map("number_phone") @db.VarChar(15)
-  email       String  @unique @db.VarChar(50)
+  email       String  @db.VarChar(50)
   bookingCode String? @unique @map("booking_code") @db.VarChar(15)
 
   pasengger   Passenger[]
@@ -219,23 +220,25 @@ enum TitlePassenger {
 }
 
 model Transaction {
-  id             BigInt            @id @default(autoincrement())
-  userId         BigInt            @map("user_id")
-  ordererId      BigInt?           @map("orderer_id")
-  flightId       BigInt            @map("flight_id")
-  status         StatusTransaction @default(unpaid)
-  amount         Decimal?          @default(0)
-  amountAfterTax Decimal?          @default(0) @map("amount_after_tax")
-  expiredPayment DateTime?         @map("expired_payment")
-  expiredFilling DateTime?         @map("expired_filling")
-  createdAt      DateTime          @default(now()) @map("created_at")
-  updatedAt      DateTime?         @map("updated_at")
+  id                BigInt            @id @default(autoincrement())
+  userId            BigInt            @map("user_id")
+  ordererId         BigInt?           @map("orderer_id")
+  departureFlightId BigInt            @map("departure_flight_id")
+  returnFlightId    BigInt?           @map("return_flight_id")
+  status            StatusTransaction @default(unpaid)
+  amount            Decimal?          @default(0)
+  amountAfterTax    Decimal?          @default(0) @map("amount_after_tax")
+  expiredPayment    DateTime?         @map("expired_payment")
+  expiredFilling    DateTime?         @map("expired_filling") @db.Time()
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime?         @map("updated_at")
 
   paymentDetail PaymentDetail?
 
-  user   User     @relation(fields: [userId], references: [id])
-  order  Orderer? @relation(fields: [ordererId], references: [id])
-  flight Flight   @relation(fields: [flightId], references: [id])
+  user            User     @relation(fields: [userId], references: [id])
+  order           Orderer? @relation(fields: [ordererId], references: [id])
+  departureFlight Flight   @relation("departureFlight", fields: [departureFlightId], references: [id])
+  returnFlight    Flight?  @relation("returnFlight", fields: [returnFlightId], references: [id])
 
   @@map("transactions")
 }
