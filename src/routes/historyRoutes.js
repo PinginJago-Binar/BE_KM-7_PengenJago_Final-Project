@@ -5,9 +5,13 @@ import errorHandler from '../middlewares/errorHandler.js';
 const historyRoutes = new Router();
 
 historyRoutes.get('/', async (req, res, next) => {
-  try {
-    const email = req.query.email;
-    
+  const email = req.query.email;
+
+  if (!email) {
+    return res.status(400).json({message: 'Email is required'})
+  }
+  
+  try {    
     const history = await getHistory(email);
     return res.status(200).json(history);
   }catch (error) {
@@ -16,14 +20,14 @@ historyRoutes.get('/', async (req, res, next) => {
 });
 
 historyRoutes.get('/detail/:transactionId', async (req, res, next) => {
-    try {
-        const { transactionId } = req.params;
+  const { transactionId } = req.params;
 
-        const detail = await historyDetail(transactionId);
-        return res.status(200).json(detail);
-    }catch (error) {
-        return next(error);
-    }
+  try {
+    const detail = await historyDetail(transactionId);
+      return res.status(200).json(detail);
+  }catch (error) {
+      return next(error);
+  }
 });
 
 historyRoutes.use(errorHandler);
