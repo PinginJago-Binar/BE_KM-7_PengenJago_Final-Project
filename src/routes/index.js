@@ -1,9 +1,8 @@
-import exampleRoutes from "./exampleRoutes.js";
+import homepageRoutes from "./homepageRoutes.js";
 
-const configureRoutes = (app) => {
-  app.use('/api/example', exampleRoutes);  
+const configureRoutes = (app) => { 
+  app.use('/api/homepage', homepageRoutes);  
 
-  // Dilanjutkan dengan endpoint anda seterusnya
 };
 
 export default configureRoutes;
