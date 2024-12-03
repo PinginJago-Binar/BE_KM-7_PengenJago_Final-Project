@@ -1,23 +1,15 @@
 import { PrismaClient } from "@prisma/client";
+import { DISCOUNT_FOR_CHILD } from "../config/constans.js";
 
 
 const prisma = new PrismaClient();
 
 export async function getHistory(email) {
-
-  const user = await prisma.user.findUnique({
-    where: { email },
-    select: { id: true },
-  });
-
-  if (!user){
-    throw new Error ('User not found');
-  }
-
   const transactions = await prisma.transaction.findMany({
     where: {
-      userId: user.id,
-      // NOT: { returnFlightId: null },
+      user: {
+        email: email,
+      },
     },
     select: {
       id: true,
@@ -118,7 +110,7 @@ export async function getHistory(email) {
   }));
   return {
     success: true,
-    Data: historyMapping,
+    data: historyMapping,
   };
 };
 
@@ -131,10 +123,9 @@ export async function historyDetail(transactionId) {
       status: true,
       amount: true,
       amountAfterTax: true,
+      
       order : {
         select: {
-            fullname: true,
-            familyName: true,
             id: true,
             bookingCode: true,
             pasengger: {
@@ -148,6 +139,17 @@ export async function historyDetail(transactionId) {
       },
       departureFlight: {        
         select: {
+          airplane: {
+            select: {
+              airplaneCode: true,
+              airline: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          price: true,
           class: true,
           departureTerminal: {
             select: { 
@@ -172,6 +174,17 @@ export async function historyDetail(transactionId) {
       },
       returnFlight: {
         select: {
+          airplane: {
+            select: {
+              airplaneCode: true,
+              airline: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          price: true,
           departureTerminal: {
             select: {
               name: true,
@@ -206,15 +219,63 @@ export async function historyDetail(transactionId) {
   
 
   const historyDetailMapping = transactions.map((transaction) => {
-    const pasenggers = transaction.order?.pasengger || [];
-    const totalPassengers = pasenggers.length;
+    const passengers = transaction.order?.pasengger || [];
+    const ordererId= transaction.order?.id || null;
+    const priceDetails = {
+      passenger: [],
+      tax: transaction.amountAfterTax - transaction.amount,
+      totalPayAfterTax: transaction.amountAfterTax,
+    };
+
+    const groupPassengers = (flight, flightType) => {
+      const grouped = {};
+      passengers.forEach((passenger) => {
+        const type = passenger.passengerType;
+        const basePrice = flight?.price || 0;
+        let finalPrice = 0;
+  
+        if (type === "adult") {
+          finalPrice = basePrice;
+        } else if (type === "child") {
+          finalPrice = basePrice * (1 - DISCOUNT_FOR_CHILD);
+        } else if (type === "baby") {
+          finalPrice = 0;
+        }
+  
+        if (!grouped[type]) {
+          grouped[type] = { count: 0, total: 0 };
+        }
+        grouped[type].count += 1;
+        grouped[type].total += finalPrice;
+      });
+  
+      Object.entries(grouped).forEach(([type, details]) => {
+        priceDetails.passenger.push({
+          type,
+          count: details.count,
+          total: details.total,
+          flightType,
+        });
+      });
+    };
+
+    groupPassengers(transaction.departureFlight, "departure");
+    if (transaction.returnFlight) {
+      groupPassengers(transaction.returnFlight, "return");
+    }
+
+    const ordererNames = passengers.map((passenger) => ({
+      id: Number(ordererId),
+      fullname: `${passenger.fullname || ""} ${passenger.familyName || ""}`.trim(),  
+    }));
 
     return {
-      status: transaction.status,
-      bookingCode: transaction.order?.bookingCode,
-      status: transaction.status,
-      seatClass: transaction.departureFlight?.class || transaction.returnFlight?.class,
       departureFlight: {
+        status: transaction.status,
+        bookingCode: transaction.order?.bookingCode,
+        airlineName: transaction.departureFlight?.airplane?.airline?.name,
+        airplaneCode: transaction.departureFlight?.airplane?.airplaneCode,
+        seatClass: transaction.departureFlight?.class || transaction.returnFlight?.class,
         departure: {
           date: transaction.departureFlight?.departureDate,
           time: transaction.departureFlight?.departureTime,
@@ -228,30 +289,27 @@ export async function historyDetail(transactionId) {
         },
       },
       returnFlight: transaction.returnFlight
-    ? {
-        departure: {
-          date: transaction.returnFlight?.departureDate,
-          time: transaction.returnFlight?.departureTime,
-          airport: transaction.returnFlight?.departureAirport?.name,
-          terminalName: transaction.returnFlight?.departureTerminal?.name || "N/A",
-        },
-        arrival: {
-          date: transaction.returnFlight?.arrivalDate,
-          time: transaction.returnFlight?.arrivalTime,
-          airport: transaction.returnFlight?.destinationAirport?.name,
-        },
-      } : null,
-      airplaneCode: transaction.flight?.airplane?.airplaneCode,
-      airlineName: transaction.flight?.airplane?.airline.name,
-      amount: transaction.amount,
-      amountAfterTax: transaction.amountAfterTax,
-      totalPassengers,
-      pasenggerDetails: pasenggers.map((pasengger) => ({
-        fullNameAndFamily: `${transaction.order?.fullname} ${transaction.order?.familyName}`.trim(),
-        passengerType: pasengger.passengerType,
-        ordererId: transaction.order?.id.toString(),
-        seatClass: transaction.departureFlight?.class || transaction.returnFlight?.class,
-      })),
+        ? { 
+          status: transaction.status,
+          bookingCode: transaction.order?.bookingCode,
+          airlineName: transaction.returnFlight?.airplane?.airline?.name,
+          airplaneCode:transaction.returnFlight?.airplane?.airplaneCode,
+          seatClass: transaction.departureFlight?.class || transaction.returnFlight?.class,
+            departure: {
+              date: transaction.returnFlight?.departureDate,
+              time: transaction.returnFlight?.departureTime,
+              airport: transaction.returnFlight?.departureAirport?.name,
+              terminalName: transaction.returnFlight?.departureTerminal?.name || "N/A",
+            },
+            arrival: {
+              date: transaction.returnFlight?.arrivalDate,
+              time: transaction.returnFlight?.arrivalTime,
+              airport: transaction.returnFlight?.destinationAirport?.name,
+            },
+          }
+        : null,
+      priceDetails,
+      ordererNames,
     };
   });
   return {
