@@ -14,6 +14,7 @@
     "prisma:migrate-dev": "npx prisma migrate dev --name",
     "prisma:format": "npx prisma format",
     "prisma:show": "npx prisma studio",
+    "prisma:seed": "node ./src/seeding/index.js",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest"
   },
   "author": "pengenjago team's",

@@ -1,4 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const countries = [
@@ -7,6 +7,8 @@ const countries = [
   { name: "Germany", continentId: 3 },
   { name: "Brazil", continentId: 5 },
   { name: "Australia", continentId: 6 },
+  { name: "Nigeria", continentId: 1 },
+  { name: "Aljazair", continentId: 1 },
 ];
 
 const seedCountries = async () => {

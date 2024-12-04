@@ -1,4 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 const cities = [
@@ -7,6 +7,8 @@ const cities = [
   { name: "Berlin", cityCode: "BER", countryId: 3 },
   { name: "Rio de Janeiro", cityCode: "RIO", countryId: 4 },
   { name: "Sydney", cityCode: "SYD", countryId: 5 },
+  { name: "Bandung", cityCode: "BDOA", countryId: 1 },
+  { name: "Samarinda", cityCode: "SRIA", countryId: 1 },
 ];
 
 const seedCities = async () => {

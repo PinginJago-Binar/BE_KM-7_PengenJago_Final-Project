@@ -7,6 +7,11 @@ const airlines = [
   { name: "Lufthansa", logo: "lufthansa.png" },
   { name: "Qantas", logo: "qantas.png" },
   { name: "Air France", logo: "airfrance.png" },
+  { name: "Batavia Air", logo: "batavia.png" },
+  { name: "Batik Indonesia", logo: "batik.png" },
+  { name: "Qatar Airways", logo: "qatar-airways.png" },
+  { name: "Singapore Airlines", logo: "singapore-airlines.png" },
+  { name: "AirAsia Japan", logo: "japan.png" },
 ];
 
 const seedAirlines = async () => {
