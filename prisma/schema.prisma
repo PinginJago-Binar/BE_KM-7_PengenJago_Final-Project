@@ -230,7 +230,7 @@ model Transaction {
   amount            Decimal?          @default(0)
   amountAfterTax    Decimal?          @default(0) @map("amount_after_tax")
   expiredPayment    DateTime?         @map("expired_payment")
-  expiredFilling    DateTime?         @map("expired_filling") @db.Time()
+  expiredFilling    DateTime?         @map("expired_filling")
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime?         @map("updated_at")
 
