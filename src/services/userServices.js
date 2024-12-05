@@ -34,4 +34,55 @@ const updateUserService = async (userId, updateData) => {
   return updatedUser;
 };
 
-export { getUserServices, updateUserService };
+// Fungsi untuk soft delete user
+const softDeleteUserService = async (userId) => {
+  const deletedUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      deletedAt: new Date(), // Setel deletedAt ke waktu saat ini
+    },
+  });
+
+  return deletedUser;
+};
+
+// Fungsi untuk mengembalikan user yang sudah di-soft delete
+const restoreUserService = async (userId) => {
+  // Cek apakah user ada dan sudah di-soft delete
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user || !user.deletedAt) {
+    throw new Error("User is not deleted or does not exist");
+  }
+
+  // Mengembalikan user dengan menghapus nilai deletedAt
+  const restoredUser = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      deletedAt: null, // Menghapus deletedAt untuk mengembalikan user
+    },
+  });
+
+  return restoredUser;
+};
+
+// Fungsi untuk mendapatkan semua user yang belum di-soft delete
+const getActiveUsers = async () => {
+  const users = await prisma.user.findMany({
+    where: {
+      deletedAt: null, // Mengambil user yang tidak di-soft delete
+    },
+  });
+
+  return users;
+};
+
+export {
+  getUserServices,
+  updateUserService,
+  softDeleteUserService,
+  getActiveUsers,
+  restoreUserService,
+};
