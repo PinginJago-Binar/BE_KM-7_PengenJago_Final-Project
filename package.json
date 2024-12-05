@@ -2,14 +2,19 @@
   "name": "be_km-7_pengenjago_final-project",
   "version": "1.0.0",
   "description": "capstone binar km7 - be",
-  "main": "src/server.js",
+  "main": "src/server.js",  
   "type": "module",
   "scripts": {
+    "start": "npx prisma migrate deploy && npx prisma generate && node ./src/server.js",
     "start:dev": "nodemon ./src/server.js",
-    "prisma:generate": "npx prisma generate",
+    "generate": "npx prisma generate",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "migrate:status": "prisma migrate status",
     "prisma:migrate-dev": "npx prisma migrate dev --name",
     "prisma:format": "npx prisma format",
     "prisma:show": "npx prisma studio",
+    "prisma:seed": "node ./src/seeding/index.js",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest"
   },
   "author": "pengenjago team's",
@@ -29,7 +34,8 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "superjson": "^2.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
@@ -37,6 +43,7 @@
     "eslint": "^9.15.0",
     "globals": "^15.12.0",
     "jest": "^29.7.0",
+    "nodemon": "^3.1.7",
     "prisma": "^5.22.0"
   }
 }
