@@ -10,7 +10,7 @@ import {
   logoutService,
 } from "../services/authServices.js";
 import asyncWrapper from "../utils/asyncWrapper.js";
-import convertToJson from "../utils/convertTojson.js";
+import convertToJson from "../utils/convertToJson.js";
 
 const prisma = new PrismaClient();
 
