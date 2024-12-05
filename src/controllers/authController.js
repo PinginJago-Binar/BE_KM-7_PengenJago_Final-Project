@@ -7,9 +7,10 @@ import {
   loginService,
   forgotPasswordService,
   resetPasswordService,
+  logoutService,
 } from "../services/authServices.js";
 import asyncWrapper from "../utils/asyncWrapper.js";
-import convertToJson from "../utils/convertToJson.js";
+import convertToJson from "../utils/convertTojson.js";
 
 const prisma = new PrismaClient();
 

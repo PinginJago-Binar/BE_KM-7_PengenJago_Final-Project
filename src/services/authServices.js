@@ -6,7 +6,8 @@ import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
 import Email from "../config/mail/nodemailer.js";
-import convertToJson from "../utils/convertToJson.js";
+import convertToJson from "../utils/convertTojson.js";
+
 // import { generateToken } from "../middlewares/auth.js";
 
 const prisma = new PrismaClient();
@@ -46,7 +47,7 @@ const registerService = async (data) => {
 
   // Kirim email registrasi dengan template HTML
   const htmlContent = await ejs.renderFile(
-    path.join(process.cwd(), "./src/views/emails/otp.ejs"),
+    path.join(process.cwd(), "/src/views/emails/otp.ejs"),
     { otp }
   );
   await Email(email, "Your OTP Code", htmlContent);
@@ -109,7 +110,7 @@ const forgotPasswordService = async (email) => {
   // Path ke template email
   const templatePath = path.join(
     process.cwd(),
-    "./src/views/emails/forgot-password-email.ejs"
+    "/src/views/emails/forgot-password-email.ejs"
   );
 
   // Render file EJS dengan data RESET_LINK

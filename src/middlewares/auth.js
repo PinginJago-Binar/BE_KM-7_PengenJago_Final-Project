@@ -32,7 +32,7 @@ const isAuthenticate = async (req, res, next) => {
         .status(401)
         .json({ message: "Sesi anda habis, silahkan login kembali" });
     } else {
-      next(error);
+      next(err);
     }
   }
 };
