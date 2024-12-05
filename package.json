@@ -7,8 +7,7 @@
   "engines": {
     "node": "20.x"
   },
-  "scripts": {
-    "postinstall": "npm install --omit=dev",
+  "scripts": {    
     "start": "npx prisma migrate deploy && npx prisma generate && node ./src/server.js",
     "start:dev": "nodemon ./src/server.js",
     "generate": "npx prisma generate",
