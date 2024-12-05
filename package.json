@@ -4,6 +4,9 @@
   "description": "capstone binar km7 - be",
   "main": "src/server.js",  
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "start": "npx prisma migrate deploy && npx prisma generate && node ./src/server.js",
     "start:dev": "nodemon ./src/server.js",
