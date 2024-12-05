@@ -22,6 +22,9 @@ const updateUserService = async (userId, updateData) => {
   if (numberPhone) dataToUpdate.numberPhone = numberPhone;
   if (email) dataToUpdate.email = email;
 
+  // Tambahkan field updatedAt dengan waktu saat ini
+  dataToUpdate.updatedAt = new Date();
+
   // Update user di database
   const updatedUser = await prisma.user.update({
     where: { id: userId },
