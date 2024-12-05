@@ -46,7 +46,7 @@ const registerService = async (data) => {
 
   // Kirim email registrasi dengan template HTML
   const htmlContent = await ejs.renderFile(
-    path.join(process.cwd(), "/src/views/emails/otp.ejs"),
+    path.join(process.cwd(), "./src/views/emails/otp.ejs"),
     { otp }
   );
   await Email(email, "Your OTP Code", htmlContent);
@@ -58,11 +58,16 @@ const registerService = async (data) => {
 const loginService = async (email, password) => {
   // Cari user berdasarkan email
   const user = await prisma.user.findUnique({ where: { email } });
+  const userJson = convertToJson(user);
+
   if (!user) {
     throw new Error("Invalid email or password");
   }
 
-  const userJson = convertToJson(user);
+  // Periksa apakah user sudah memverifikasi OTP
+  if (!user.verifiedAt) {
+    throw new Error("Please verify your account before logging in.");
+  }
 
   // Validasi password
   const validPassword = await bcrypt.compare(password, user.password);
@@ -75,7 +80,6 @@ const loginService = async (email, password) => {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-  // Konversi user ke JSON format
   return {
     user: convertToJson(user),
     token,
@@ -100,12 +104,12 @@ const forgotPasswordService = async (email) => {
   );
 
   // Buat reset link
-  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+  const resetLink = `${process.env.BASE_URL}/reset-password?token=${resetToken}`;
 
   // Path ke template email
   const templatePath = path.join(
     process.cwd(),
-    "/src/views/emails/forgot-password-email.ejs"
+    "./src/views/emails/forgot-password-email.ejs"
   );
 
   // Render file EJS dengan data RESET_LINK

@@ -50,10 +50,14 @@ const verifyOtpController = asyncWrapper(async (req, res) => {
   if (user.otpExpiry && user.otpExpiry < new Date())
     throw new Error("OTP has expired.");
 
-  // Bersihkan OTP setelah berhasil diverifikasi
+  // Update status verifikasi dan set verifiedAt setelah berhasil diverifikasi
   await prisma.user.update({
     where: { id: userId },
-    data: { otp: null, otpExpiry: null },
+    data: {
+      otp: null,
+      otpExpiry: null,
+      verifiedAt: new Date(), // Menyimpan waktu saat verifikasi berhasil
+    },
   });
 
   res.status(200).json({ message: "OTP verified successfully." });

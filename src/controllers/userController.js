@@ -1,6 +1,9 @@
 import {
   getUserServices,
   updateUserService,
+  softDeleteUserService,
+  getActiveUsers,
+  restoreUserService,
 } from "../services/userServices.js";
 import asyncWrapper from "../utils/asyncWrapper.js";
 import convertToJson from "../utils/convertToJson.js";
@@ -36,4 +39,43 @@ const updateUserController = asyncWrapper(async (req, res) => {
   });
 });
 
-export { getUserController, updateUserController };
+const softDeleteUserController = asyncWrapper(async (req, res) => {
+  const { userId } = req.params;
+
+  // Panggil service untuk soft delete user
+  const deletedUser = await softDeleteUserService(userId);
+
+  res.status(200).json({
+    message: "User deleted successfully (soft delete)",
+    user: convertToJson(deletedUser),
+  });
+});
+
+const getActiveUsersController = asyncWrapper(async (req, res) => {
+  const users = await getActiveUsers();
+
+  res.status(200).json({
+    message: "Active users retrieved successfully",
+    users: convertToJson(users),
+  });
+});
+
+const restoreUserController = asyncWrapper(async (req, res) => {
+  const { userId } = req.params;
+
+  // Panggil service untuk mengembalikan user yang di-soft delete
+  const restoredUser = await restoreUserService(userId);
+
+  res.status(200).json({
+    message: "User restored successfully",
+    user: convertToJson(restoredUser),
+  });
+});
+
+export {
+  getUserController,
+  updateUserController,
+  softDeleteUserController,
+  getActiveUsersController,
+  restoreUserController,
+};
