@@ -1,6 +1,6 @@
 import { DISCOUNT_FOR_CHILD, TAX_PAYMENT } from "../config/constants.js";
 import asyncWrapper from "../utils/asyncWrapper.js"
-import convertToJson from "../utils/convertTojson.js";
+import convertToJson from "../utils/convertToJson.js";
 import { toBoolean } from "../utils/typeDataConvert.js";
 import { createOrderer, updateOrdererById } from "../services/Orderer.js";
 import { createTransaction, getTransactionByIdAndUser } from "../services/Transaction.js";
