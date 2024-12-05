@@ -1,9 +1,17 @@
-import exampleRoutes from "./exampleRoutes.js";
+import checkoutRoutes from "./checkoutRoutes.js";
+import homepageRoutes from "./homepageRoutes.js";
+import historyRoutes from "./historyRoutes.js";
+import userRoutes from "./userRoutes.js";
+import authRoutes from "./authRoutes.js";
 
-const configureRoutes = (app) => {
-  app.use('/api/example', exampleRoutes);  
+const configureRoutes = (app) => { 
+  
+  app.use('/api/homepage', homepageRoutes);  
+  app.use('/api/history', historyRoutes);
+  app.use('/api/checkout', checkoutRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/auth", authRoutes);
 
-  // Dilanjutkan dengan endpoint anda seterusnya
 };
 
 export default configureRoutes;

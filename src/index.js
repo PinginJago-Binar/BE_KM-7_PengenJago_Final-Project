@@ -10,7 +10,7 @@ const app = express();
 
 // EJS View Engine
 app.set("views", path.join("./views"));
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 app.use(expressEjsLayouts);
 
 app.use(morgan("combined"));
@@ -23,6 +23,5 @@ app.use(cors());
 configureRoutes(app);
 
 app.use(errorHandler);
-
 
 export default app;
