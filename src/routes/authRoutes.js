@@ -7,6 +7,10 @@ import {
   resetPasswordController,
   logoutController,
 } from "../controllers/authController.js";
+import {
+  validate,
+  registerSchema,
+} from "../middlewares/validations/userValidation.js";
 // import {
 //   authenticate,
 //   generateToken,
@@ -15,7 +19,7 @@ import {
 
 const router = express.Router();
 
-router.post("/register", registerController);
+router.post("/register", validate(registerSchema), registerController);
 router.post("/verify-otp", verifyOtpController);
 router.post("/login", login);
 router.post("/forgot-password", forgotPasswordController);

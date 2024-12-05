@@ -46,7 +46,7 @@ const registerService = async (data) => {
 
   // Kirim email registrasi dengan template HTML
   const htmlContent = await ejs.renderFile(
-    path.join(process.cwd(), "/src/views/emails/otp.ejs"),
+    path.join(process.cwd(), "./src/views/emails/otp.ejs"),
     { otp }
   );
   await Email(email, "Your OTP Code", htmlContent);
@@ -100,12 +100,12 @@ const forgotPasswordService = async (email) => {
   );
 
   // Buat reset link
-  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+  const resetLink = `${process.env.BASE_URL}/reset-password?token=${resetToken}`;
 
   // Path ke template email
   const templatePath = path.join(
     process.cwd(),
-    "/src/views/emails/forgot-password-email.ejs"
+    "./src/views/emails/forgot-password-email.ejs"
   );
 
   // Render file EJS dengan data RESET_LINK

@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const authenticate = async (req, res, next) => {
+const isAuthenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -21,18 +21,18 @@ const authenticate = async (req, res, next) => {
     });
 
     if (!user) {
-      return res.status(401).json({ message: "Token tidak valid" });
+      return res.status(401).json({ message: "User tak ditemukan" });
     }
 
     req.user = user; // Simpan user ke request untuk digunakan di endpoint
     next();
   } catch (err) {
     if (err.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token expired" });
-    } else {
       return res
         .status(401)
-        .json({ message: "Token tidak valid atau sudah kedaluwarsa" });
+        .json({ message: "Sesi anda habis, silahkan login kembali" });
+    } else {
+      next(error);
     }
   }
 };
@@ -72,4 +72,4 @@ const changePassword = async (req, res, next) => {
   }
 };
 
-export { authenticate, generateToken, changePassword };
+export { isAuthenticate, generateToken, changePassword };
