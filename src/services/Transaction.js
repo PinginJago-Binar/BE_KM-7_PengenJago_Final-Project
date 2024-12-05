@@ -1,10 +1,38 @@
+import { DISCOUNT_FOR_CHILD } from "../config/constants.js";
 import { PrismaClient } from "@prisma/client";
-import { DISCOUNT_FOR_CHILD } from "../config/constans.js";
-
-
 const prisma = new PrismaClient();
 
-export async function getHistory(email) {
+
+const createTransaction = async (data) => {
+  return prisma.transaction.create({ data });
+}
+
+/**
+ * Get transaction by user id
+ * @param {number} transactionId 
+ */
+const getTransactionById = async (transactionId) => {
+  return prisma.transaction.findUnique({ 
+    where: { id: transactionId } }
+  );
+}
+
+/**
+ * Get transaction by transaction id and user id
+ * @param {number} transactionId 
+ * @param {number} userId 
+ * @returns 
+ */
+const getTransactionByIdAndUser = async (transactionId, userId) => {
+  return prisma.transaction.findUnique({
+    where: {    
+      id: transactionId,
+      userId: userId,      
+    },
+  });
+};
+
+const getHistory = async (email) => {
   const transactions = await prisma.transaction.findMany({
     where: {
       user: {
@@ -114,7 +142,7 @@ export async function getHistory(email) {
   };
 };
 
-export async function historyDetail(transactionId) {
+const historyDetail = async (transactionId) => {
   const transactions = await prisma.transaction.findMany({
     where: {
         id: transactionId,
@@ -317,3 +345,13 @@ export async function historyDetail(transactionId) {
     data: historyDetailMapping,
   };
 };
+
+
+
+export {
+  createTransaction,
+  getTransactionById,
+  getTransactionByIdAndUser,
+  getHistory,
+  historyDetail
+}

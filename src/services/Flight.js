@@ -1,7 +1,40 @@
-import prisma from '../libs/prisma.js';
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
 
-// fungsi untuk mencari penerbangan
-export const searchFlightService = async ({
+/**
+ * Get flight by id
+ * @param {number} flightId 
+ * @returns async object literal
+ */
+const getFlightById = async (flightId) => {
+  return prisma.flight.findUnique({
+    where: { id: flightId },
+  })
+}
+
+/**
+ * Get detail flight By Id
+ * @param {number} flightId 
+ * @returns async object literal
+ */
+const getDetailFlightById = async (flightId) => {
+  return prisma.flight.findFirst({ 
+    where: { id: flightId },
+    include: {
+      departureAirport: true,
+      returnFlight: true,
+      departureTerminal: true,
+      airplane: {
+        include: {
+          airline: true,
+          seat: true
+        }
+      }
+    }
+  });  
+}
+
+const searchFlightService = async ({
   departure,
   destination,
   departureDate,
@@ -113,8 +146,7 @@ export const searchFlightService = async ({
   }
 };
 
-// fungsi untuk mengecek ketersediaan tiket
-export const checkTicketService = async (departureFlightId, returnFlightId, seatClass, passengers) => {
+const checkTicketService = async (departureFlightId, returnFlightId, seatClass, passengers) => {
   const checkFlightAvailability = async (flightId) => {
     const flight = await prisma.flight.findUnique({
       where: { id: flightId },
@@ -158,3 +190,11 @@ export const checkTicketService = async (departureFlightId, returnFlightId, seat
     throw new Error(error.message || 'Terjadi kesalahan saat memeriksa ketersediaan tiket.');
   }
 };
+
+
+export {
+  getFlightById,
+  getDetailFlightById,
+  searchFlightService,
+  checkTicketService
+}

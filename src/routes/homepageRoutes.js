@@ -1,10 +1,10 @@
 import express from 'express';
 import { getHomepage, searchFlightControll, ticketControll } from '../controllers/homepageController.js';
 
-const router = express.Router();
+const homepageRouter = express.Router();
 
-router.get("/", getHomepage);
-router.post("/search-flights", searchFlightControll);
-router.get("/status-ticket/:flightId/:returnFlightId?", ticketControll);
+homepageRouter.get("/", getHomepage);
+homepageRouter.post("/search-flights", searchFlightControll);
+homepageRouter.get("/status-ticket/:flightId/:returnFlightId?", ticketControll);
 
-export default router;
+export default homepageRouter;

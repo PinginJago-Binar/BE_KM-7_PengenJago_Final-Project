@@ -1,6 +1,6 @@
 import Joi from 'joi';
-import { searchFlightService, checkTicketService } from "../services/homepageServices.js";
-
+import { searchFlightService, checkTicketService } from '../services/Flight.js';
+import asyncWrapper from '../utils/asyncWrapper.js';
 
 export const getHomepage = (req, res) => {
   const homepageView = {
@@ -21,7 +21,7 @@ const flightSearchSchema = Joi.object({
 });
 
 
-export const searchFlightControll = async (req, res) => {
+export const searchFlightControll = asyncWrapper(async (req, res) => {
   const { departure, destination, departureDate, returnDate, passengers, seatClass } = req.body;
 
 
@@ -113,9 +113,9 @@ export const searchFlightControll = async (req, res) => {
       message: error.message || 'Terjadi kesalahan saat mencari penerbangan',
     });
   }
-};
+});
 
-export const ticketControll = async (req, res) => {
+export const ticketControll = asyncWrapper(async (req, res) => {
   const { flightId, returnFlightId } = req.params; 
 
   try {
@@ -158,4 +158,4 @@ export const ticketControll = async (req, res) => {
       message: error.message || 'Terjadi kesalahan saat memeriksa ketersediaan tiket.',
     });
   }
-};
+});
