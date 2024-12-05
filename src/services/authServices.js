@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
 import Email from "../config/mail/nodemailer.js";
-import convertToJson from "../utils/convertTojson.js";
+import convertToJson from "../utils/convertToJson.js";
 
 // import { generateToken } from "../middlewares/auth.js";
 
