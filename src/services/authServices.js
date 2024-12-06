@@ -105,7 +105,7 @@ const forgotPasswordService = async (email) => {
   );
 
   // Buat reset link
-  const resetLink = `${process.env.BASE_URL}/reset-password?token=${resetToken}`;
+  const resetLink = `${process.env.BASE_URL}/auth/forget-pass?token=${resetToken}`;
 
   // Path ke template email
   const templatePath = path.join(
