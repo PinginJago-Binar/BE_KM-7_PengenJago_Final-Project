@@ -2,7 +2,7 @@
   "name": "be_km-7_pengenjago_final-project",
   "version": "1.0.0",
   "description": "capstone binar km7 - be",
-  "main": "src/server.js",  
+  "main": "src/server.js",
   "type": "module",
   "scripts": {
     "start": "npx prisma migrate deploy && npx prisma generate && node ./src/server.js",

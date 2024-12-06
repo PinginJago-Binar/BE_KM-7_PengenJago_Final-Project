@@ -1,161 +1,158 @@
 import Joi from 'joi';
-import { searchFlightService, checkTicketService } from '../services/Flight.js';
-import asyncWrapper from '../utils/asyncWrapper.js';
+import getFlightData from '../services/homepageServices.js';
+import asyncWrapper from '../utils/asyncWrapper.js'; 
+import convertToJson from "../utils/convertToJson.js"; 
 
-export const getHomepage = (req, res) => {
-  const homepageView = {
-    message: "Selamat datang di Beranda Utama",
-  };
-  res.status(200).json(homepageView);
-};
-
-
-// skema validasi dengan Joi
+// schema validasi menggunakan Joi
 const flightSearchSchema = Joi.object({
   departure: Joi.number().required(),
   destination: Joi.number().required(),
   departureDate: Joi.date().required(),
-  returnDate: Joi.date().iso().optional(),
+  returnDate: Joi.date().optional(),
   passengers: Joi.number().min(1).required(),
   seatClass: Joi.string().valid('economy', 'business').required(),
 });
 
+// controller untuk pencarian penerbangan
+const searchFlightController = asyncWrapper(async (req, res) => {
+  const { departure, destination, departureDate, returnDate, passengers, seatClass } = req.query;
 
-export const searchFlightControll = asyncWrapper(async (req, res) => {
-  const { departure, destination, departureDate, returnDate, passengers, seatClass } = req.body;
+  // parsing dan validasi input
+  const parsedBody = {
+    departure: parseInt(departure),
+    destination: parseInt(destination),
+    departureDate: new Date(departureDate),
+    returnDate: returnDate ? new Date(returnDate) : undefined,
+    passengers: parseInt(passengers),
+    seatClass,
+  };
 
-
-  try {
-    console.log("Request body:", req.body);
-
-
-    // validasi input menggunakan Joi
-    const { error } = flightSearchSchema.validate({
-      departure,
-      destination,
-      departureDate,
-      returnDate,
-      passengers,
-      seatClass,
-    });
-
-
-    if (error) {
-      const errorMessages = error.details.map((err) => err.message);
-      return res.status(400).json({ message: errorMessages.join(", ") });
-    }
-
-
-    // konversi tanggal keberangkatan ke UTC+7 (WIB)
-    const departureDateConverted = new Date(departureDate);
-    departureDateConverted.setHours(departureDateConverted.getHours() + 7);
-
-    // konversi tanggal kepulangan ke UTC+7 (WIB)
-    const returnDateConverted = returnDate
-      ? (() => {
-          const date = new Date(returnDate);
-          date.setHours(date.getHours() + 7);
-          return date;
-        })()
-      : null;
-
-
-    // memanggil service untuk mencari penerbangan
-    const { departureFlights, returnFlights } = await searchFlightService({
-      departure,
-      destination,
-      departureDate: departureDateConverted,
-      returnDate: returnDateConverted,
-      passengers,
-      seatClass,
-    });
-
-
-    // jika returnDate diisi, maka harus ada kedua jadwal (departure & return)
-    if (returnDate && (departureFlights.length === 0 || returnFlights.length === 0)) {
-      console.log("Tidak ada penerbangan untuk salah satu jadwal (departure atau return)");
-      return res.status(404).json({
-        message: "Maaf, pencarian anda tidak ditemukan. Pastikan kedua jadwal tersedia.",
-      });
-    }
-
-
-    // jika hanya departureFlights yang tersedia (tanpa returnDate), maka kedua penerbangan dibuat tidak ada
-    if (departureFlights.length === 0) {
-      console.log("Tidak ada penerbangan keberangkatan ditemukan");
-      return res.status(404).json({
-        message: "Maaf, pencarian anda tidak ditemukan. Coba cari perjalanan lainnya.",
-      });
-    }
-
-
-    // mengirim respons dengan data penerbangan departure dan return
-    res.status(200).json({
-      departureFlights: departureFlights.map((flight) => ({
-        ...flight,
-        id: flight.id.toString(),
-        airplaneId: flight.airplaneId.toString(),
-        departureAirportId: flight.departureAirportId.toString(),
-        destinationAirportId: flight.destinationAirportId.toString(),
-        departureTerminalId: flight.departureTerminalId?.toString() || null,
-      })),
-      returnFlights: returnFlights.map((flight) => ({
-        ...flight,
-        id: flight.id.toString(),
-        airplaneId: flight.airplaneId.toString(),
-        departureAirportId: flight.departureAirportId.toString(),
-        destinationAirportId: flight.destinationAirportId.toString(),
-        departureTerminalId: flight.departureTerminalId?.toString() || null,
-      })),
-    });
-  } catch (error) {
+  const { error } = flightSearchSchema.validate(parsedBody);
+  if (error) {
+    const errorMessages = error.details.map((err) => err.message);
     return res.status(400).json({
-      message: error.message || 'Terjadi kesalahan saat mencari penerbangan',
+      status: "error",
+      message: errorMessages.join(', '),
     });
   }
-});
 
-export const ticketControll = asyncWrapper(async (req, res) => {
-  const { flightId, returnFlightId } = req.params; 
+  // validasi jumlah penumpang
+  if (parsedBody.passengers > 9) {
+    return res.status(400).json({
+      status: "error",
+      message: 'Maksimum 9 penumpang. (Dewasa dan Anak).',
+    });
+  }
 
   try {
-    // mengecek ketersediaan tiket keberangkatan dan kepulangan
-    const { departureSeats, returnSeats } = await checkTicketService(flightId, returnFlightId);
-
-    // jika tiket keberangkatan habis
-    if (departureSeats <= 0) {
-      return res.status(400).json({
-        message: 'Tiket untuk penerbangan keberangkatan ini habis. Silahkan pilih penerbangan lain.',
-      });
-    }
-
-    // jika tiket kepulangan habis (dengan return Date)
-    if (returnFlightId && returnSeats <= 0) {
-      return res.status(400).json({
-        message: 'Tiket untuk penerbangan kepulangan ini habis. Silahkan pilih penerbangan lain.',
-      });
-    }
-
-    // mengecek apakah user sudah login
-    // tiket tersedia dan user belum login
-    if (!req.isAuthenticated) {
-      return res.status(401).json({
-        message: 'Tiket tersedia, Anda harus login untuk melanjutkan ke checkout.',
-      });
-    }
-
-    // tiket tersedia dan user sudah login
-    return res.status(200).json({
-      message: 'Tiket tersedia, silahkan lanjutkan ke proses checkout.',
-      availableSeats: {
-        departureSeats,
-        returnSeats: returnFlightId ? returnSeats : null,
+    let convertDepartureFlights = [];
+    // kriteria pencarian keberangkatan
+    const criteria = {
+      where: {
+        departureAirport: { cityId: parsedBody.departure },
+        destinationAirport: { cityId: parsedBody.destination },
+        departureDate: {
+          gte: new Date(parsedBody.departureDate.setHours(0, 0, 0)),
+          lt: new Date(parsedBody.departureDate.setHours(23, 59, 59)),
+        },
+        class: parsedBody.seatClass || 'economy',
       },
+      include: {
+        airplane: { include: { seat: true } },
+        departureAirport: true,
+        destinationAirport: true,
+        departureTerminal: true,
+      },
+    };
+
+    // mencari penerbangan keberangkatan
+    const departureFlights = await getFlightData(criteria);
+
+    // filter penerbangan keberangkatan berdasarkan kursi yang tersedia
+    const filterDepartureFlights = departureFlights.filter((flight) => {
+      const availableSeats = flight.airplane.seat.filter(seat => seat.status === 'available').length;
+      return availableSeats >= parsedBody.passengers;
+    });
+
+    convertDepartureFlights = convertToJson(filterDepartureFlights);
+
+    // validasi tiket habis untuk keberangkatan
+    if (departureFlights.length > 0 && filterDepartureFlights.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: 'Maaf, Tiket terjual habis. Coba cari perjalanan lain.',
+      });
+    }
+
+    // validasi jika tidak ada data keberangkatan
+    if (departureFlights.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: 'Maaf, pencarian Anda tidak ditemukan. Coba cari perjalanan lainnya.',
+      });
+    }
+
+    // pencarian penerbangan kepulangan (jika ada)
+    let convertReturnFlights = [];
+    if (parsedBody.returnDate) {
+      const returnCriteria = {
+        where: {
+          departureAirport: { cityId: parsedBody.destination },
+          destinationAirport: { cityId: parsedBody.departure },
+          departureDate: {
+            gte: new Date(parsedBody.returnDate.setHours(0, 0, 0)),
+            lt: new Date(parsedBody.returnDate.setHours(23, 59, 59)),
+          },
+          class: parsedBody.seatClass || 'economy',
+        },
+        include: {
+          airplane: { include: { seat: true } },
+          departureAirport: true,
+          destinationAirport: true,
+          departureTerminal: true,
+        },
+      };
+
+      // mencari penerbangan kepulangan
+      const returnFlights = await getFlightData(returnCriteria);
+
+      // filter penerbangan kepulangan berdasarkan kursi yang tersedia
+      const filterReturnFlights = returnFlights.filter((flight) => {
+        const availableSeats = flight.airplane.seat.filter(seat => seat.status === 'available').length;
+        return availableSeats >= parsedBody.passengers;
+      });
+
+      convertReturnFlights = convertToJson(filterReturnFlights);
+
+      // validasi tiket habis untuk kepulangan
+      if (returnFlights.length > 0 && filterReturnFlights.length === 0) {
+        return res.status(404).json({
+          status: "error",
+          message: 'Maaf, Tiket terjual habis untuk kepulangan. Coba cari perjalanan lain.',
+        });
+      }
+
+      // validasi jika tidak ada data penerbangan kepulangan
+      if (returnFlights.length === 0) {
+        return res.status(404).json({
+          status: "error",
+          message: 'Maaf, pencarian Anda tidak ditemukan untuk kepulangan. Coba cari perjalanan lainnya.',
+        });
+      }
+    }
+
+    // mengembalikan respons
+    return res.status(200).json({
+      status: "success",
+      departureFlights: convertDepartureFlights,
+      returnFlights: convertReturnFlights,
     });
   } catch (error) {
-    console.error(error);
     return res.status(500).json({
-      message: error.message || 'Terjadi kesalahan saat memeriksa ketersediaan tiket.',
+      status: "error",
+      message: error.message || 'Terjadi kesalahan saat mencari penerbangan.',
     });
   }
 });
+
+export default searchFlightController;
