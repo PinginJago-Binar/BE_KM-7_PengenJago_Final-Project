@@ -1,7 +1,8 @@
 import Joi from 'joi';
-import { getFlightData, getCityData } from '../services/homepageServices.js';
 import asyncWrapper from '../utils/asyncWrapper.js'; 
 import convertToJson from "../utils/convertToJson.js"; 
+import { getFlights } from '../services/Flight.js';
+import { getCities } from '../services/City.js'
 
 // schema validasi menggunakan Joi
 const flightSearchSchema = Joi.object({
@@ -15,7 +16,7 @@ const flightSearchSchema = Joi.object({
 
 // controller untuk mengambil data kota
 const getCitiesController = asyncWrapper(async (req, res) => {
-  const cities = await getCityData();
+  const cities = await getCities();
   res.status(200).json({ 
     status: 'success', 
     data: convertToJson(cities) 
@@ -75,7 +76,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
     };
 
     // mencari penerbangan keberangkatan
-    const departureFlights = await getFlightData(criteria);
+    const departureFlights = await getFlights(criteria);
 
     // filter penerbangan keberangkatan berdasarkan kursi yang tersedia
     const filterDepartureFlights = departureFlights.filter((flight) => {
@@ -123,7 +124,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
       };
 
       // mencari penerbangan kepulangan
-      const returnFlights = await getFlightData(returnCriteria);
+      const returnFlights = await getFlights(returnCriteria);
 
       // filter penerbangan kepulangan berdasarkan kursi yang tersedia
       const filterReturnFlights = returnFlights.filter((flight) => {
