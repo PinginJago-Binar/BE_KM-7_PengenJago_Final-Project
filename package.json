@@ -2,12 +2,12 @@
   "name": "be_km-7_pengenjago_final-project",
   "version": "1.0.0",
   "description": "capstone binar km7 - be",
-  "main": "src/server.js",  
+  "main": "src/server.js",
   "type": "module",
   "engines": {
     "node": "20.x"
   },
-  "scripts": {    
+  "scripts": {
     "start": "npx prisma migrate deploy && npx prisma generate && node ./src/server.js",
     "start:dev": "nodemon ./src/server.js",
     "generate": "npx prisma generate",
@@ -37,6 +37,7 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
+    "nodemailer-sendgrid-transport": "^0.2.0",
     "socket.io": "^4.8.1",
     "superjson": "^2.2.1"
   },

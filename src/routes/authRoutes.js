@@ -5,7 +5,6 @@ import {
   login,
   forgotPasswordController,
   resetPasswordController,
-  logoutController,
 } from "../controllers/authController.js";
 import {
   validate,
@@ -24,6 +23,5 @@ router.post("/verify-otp", verifyOtpController);
 router.post("/login", login);
 router.post("/forgot-password", forgotPasswordController);
 router.post("/reset-password", resetPasswordController);
-router.post("/logout", logoutController);
 
 export default router;
