@@ -47,7 +47,7 @@ const registerController = asyncWrapper(async (req, res) => {
   const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 menit kadaluarsa
 
   // Update OTP ke user
-  await updateUserOtp(user.id, { otp, otpExpiry });
+  const userUpdated = await updateUserOtp(user.id, { otp, otpExpiry });
 
   // Kirim email registrasi dengan template HTML
   const htmlContent = await ejs.renderFile(
@@ -58,7 +58,7 @@ const registerController = asyncWrapper(async (req, res) => {
 
   res.status(201).json({
     message: "User registered",
-    user: convertToJson(user),
+    user: convertToJson(userUpdated),
   });
 });
 
