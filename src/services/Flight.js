@@ -191,10 +191,22 @@ const checkTicketService = async (departureFlightId, returnFlightId, seatClass, 
   }
 };
 
+/**
+ * Fungsi untuk mengambil data penerbangan berdasarkan kriteria tertentu
+ * @param {Object} criteria - Kriteria untuk memfilter penerbangan
+ * @returns {Promise<Array>} 
+ */
+const getFlights = async (criteria) => {
+  return await prisma.flight.findMany(criteria);  
+}
+
+
+
 
 export {
   getFlightById,
   getDetailFlightById,
   searchFlightService,
-  checkTicketService
+  checkTicketService,
+  getFlights
 }
