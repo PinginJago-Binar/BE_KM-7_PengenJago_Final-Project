@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import getFlightData from '../services/homepageServices.js';
+import { getFlightData, getCityData } from '../services/homepageServices.js';
 import asyncWrapper from '../utils/asyncWrapper.js'; 
 import convertToJson from "../utils/convertToJson.js"; 
 
@@ -11,6 +11,15 @@ const flightSearchSchema = Joi.object({
   returnDate: Joi.date().optional(),
   passengers: Joi.number().min(1).required(),
   seatClass: Joi.string().valid('economy', 'business').required(),
+});
+
+// controller untuk mengambil data kota
+const getCitiesController = asyncWrapper(async (req, res) => {
+  const cities = await getCityData();
+  res.status(200).json({ 
+    status: 'success', 
+    data: convertToJson(cities) 
+  });
 });
 
 // controller untuk pencarian penerbangan
@@ -144,9 +153,13 @@ const searchFlightController = asyncWrapper(async (req, res) => {
     // mengembalikan respons
     return res.status(200).json({
       status: "success",
-      departureFlights: convertDepartureFlights,
-      returnFlights: convertReturnFlights,
+      message: "Penerbangan ditemukan.",
+      data: {
+        departureFlights: convertDepartureFlights,
+        returnFlights: convertReturnFlights,
+      },
     });
+
   } catch (error) {
     return res.status(500).json({
       status: "error",
@@ -155,4 +168,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
   }
 });
 
-export default searchFlightController;
+export {
+  getCitiesController,
+  searchFlightController
+  };
