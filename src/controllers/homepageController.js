@@ -69,8 +69,8 @@ const searchFlightController = asyncWrapper(async (req, res) => {
       },
       include: {
         airplane: { include: { seat: true } },
-        departureAirport: true,
-        destinationAirport: true,
+        departureAirport: { include: { city: true } },
+        destinationAirport: { include: { city: true } },
         departureTerminal: true,
       },
     };
@@ -117,8 +117,8 @@ const searchFlightController = asyncWrapper(async (req, res) => {
         },
         include: {
           airplane: { include: { seat: true } },
-          departureAirport: true,
-          destinationAirport: true,
+          departureAirport: { include: { city: true } },
+          destinationAirport: { include: { city: true } },
           departureTerminal: true,
         },
       };
