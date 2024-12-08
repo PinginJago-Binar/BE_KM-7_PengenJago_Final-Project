@@ -172,4 +172,4 @@ const searchFlightController = asyncWrapper(async (req, res) => {
 export {
   getCitiesController,
   searchFlightController
-  };
+  }
