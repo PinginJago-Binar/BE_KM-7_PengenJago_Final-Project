@@ -1,50 +1,57 @@
 import { PrismaClient } from "@prisma/client";
+import { terminals } from "./terminals.js";
 const prisma = new PrismaClient();
 
 const seedFlights = async () => {
 
   let flights = [];
   
+  let terminalData = terminals.map((terminal, index) => ({ id: index + 1, airportId: terminal.airportId }));
   const statuses = ["economy", "business"];
+  const loopLength = 30;
 
-  const loopLength = 15;
   for (let i = 0; i < loopLength; i++) {
   
     const departureDate = new Date();
-    const daysToAdd = i + 1;
+    let daysToAdd = i + 1;
     departureDate.setDate(departureDate.getDate() + daysToAdd);
   
-    const arrivalDate = new Date();
-    const daysToAddArrivalDate = (i + 1) % 2 === 0 ? i + 1 : i + 2;
-    arrivalDate.setDate(arrivalDate.getDate() + daysToAddArrivalDate);
-      
     const departureTime = new Date();
     departureTime.setHours(Math.floor(Math.random() * 24));
-    departureTime.setMinutes(Math.floor(Math.random() * 60)); 
-    departureTime.setSeconds(Math.floor(Math.random() * 60));
+    departureTime.setMinutes(Math.floor(Math.random() * 60));
+
+    const arrivalDate = new Date(departureDate);   
+    const randomHours = Math.floor(Math.random() * (24 - 2 + 1)) + 2; 
+    arrivalDate.setHours(arrivalDate.getHours() + randomHours);      
     
-    const arrivalTime = new Date(departureTime);
-    const additionalHours = Math.floor(Math.random() * 5) + 1;
-    const additionalMinutes = Math.floor(Math.random() * 60);
-    const additionalSeconds = Math.floor(Math.random() * 60);
-    arrivalTime.setHours(arrivalTime.getHours() + additionalHours);
-    arrivalTime.setMinutes(arrivalTime.getMinutes() + additionalMinutes);
-    arrivalTime.setSeconds(arrivalTime.getSeconds() + additionalSeconds);
+    const arrivalTime = new Date(arrivalDate);    
     
-    const priceInRupiah = Math.floor(Math.random() * 10 + 1) * 1000000;
+    let priceInRupiah = Math.floor(Math.random() * (4000000 - 900000 + 1)) + 900000;
+    priceInRupiah = Math.round(priceInRupiah / 100000) * 100000;
 
     const departureAirportId = Math.floor(Math.random() * 8) + 1;
-    const destinationAirportId = Math.floor(Math.random() * 8) + 1;
-  
+    let destinationAirportId = Math.floor(Math.random() * 8) + 1;
+
+    while (departureAirportId === destinationAirportId) {
+      destinationAirportId = Math.floor(Math.random() * 8) + 1;
+    }
+
+    const airplaneId = Math.floor(Math.random() * 15) + 1;
+
+    const terminalIds = terminalData.filter(terminal => terminal.airportId == departureAirportId);
+    
+    const terminalId = terminalIds.length !== 0 ? terminalIds[Math.floor(Math.random() * terminalIds.length)].id : null;
+    
 
     flights.push({
-      airplaneId: 1,
+      airplaneId: airplaneId,
       departureAirportId,      
       destinationAirportId,
+      departureTerminalId: terminalId,
       departureDate: departureDate.toISOString(),
       departureTime: departureTime.toISOString(),
       arrivalDate: arrivalDate.toISOString(),
-      arrivalTime: arrivalTime.toISOString(),
+      arrivalTime: arrivalTime.toISOString(),      
       class: statuses[Math.floor(Math.random() * statuses.length)],
       price: priceInRupiah,
     });
