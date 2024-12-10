@@ -77,12 +77,14 @@ const getHistoryTransactionAndDetail = asyncWrapper(async (req, res) => {
         airplaneCode: transaction.departureFlight?.airplane?.airplaneCode,
         seatClass: transaction.departureFlight?.class || transaction.returnFlight?.class,
         departure: {
+          city: transaction.departureFlight?.departureAirport?.city?.name,
           date: transaction.departureFlight?.departureDate,
           time: transaction.departureFlight?.departureTime,
           airport: transaction.departureFlight?.departureAirport?.name,
           terminalName: transaction.departureFlight?.departureTerminal?.name || "N/A",
         },
         arrival: {
+          city: transaction.departureFlight?.destinationAirport?.city?.name,
           date: transaction.departureFlight?.arrivalDate,
           time: transaction.departureFlight?.arrivalTime,
           airport: transaction.departureFlight?.destinationAirport?.name,
@@ -96,12 +98,14 @@ const getHistoryTransactionAndDetail = asyncWrapper(async (req, res) => {
           airplaneCode:transaction.returnFlight?.airplane?.airplaneCode,
           seatClass: transaction.departureFlight?.class || transaction.returnFlight?.class,
             departure: {
+              city: transaction.returnFlight?.departureAirport?.city?.name,
               date: transaction.returnFlight?.departureDate,
               time: transaction.returnFlight?.departureTime,
               airport: transaction.returnFlight?.departureAirport?.name,
               terminalName: transaction.returnFlight?.departureTerminal?.name || "N/A",
             },
             arrival: {
+              city: transaction.returnFlight?.destinationAirport?.city?.name,
               date: transaction.returnFlight?.arrivalDate,
               time: transaction.returnFlight?.arrivalTime,
               airport: transaction.returnFlight?.destinationAirport?.name,

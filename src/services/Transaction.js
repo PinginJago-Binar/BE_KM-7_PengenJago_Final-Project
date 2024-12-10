@@ -40,6 +40,9 @@ const getHistoryAndDetail = async (userId) => {
   return prisma.transaction.findMany({
     where: {
       userId: BigInt(userId),
+      order: {
+        bookingCode: { not: null, },
+      },
     },
     select: {
       id: true,
@@ -86,11 +89,21 @@ const getHistoryAndDetail = async (userId) => {
           departureAirport: {
             select: {
               name: true,
+              city: {
+                select:{
+                  name: true,
+                },
+              },
             },
           },
           destinationAirport: {
             select: {
               name: true,
+              city: {
+                select:{
+                  name: true,
+                },
+              },
             },
           },
         },
@@ -121,11 +134,21 @@ const getHistoryAndDetail = async (userId) => {
           departureAirport: {
             select: {
               name: true,
+              city: {
+                select:{
+                  name: true,
+                },
+              },
             },
           },
           destinationAirport: {
             select: {
               name: true,
+              city: {
+                select: {
+                  name: true,
+                }
+              }
             },
           },
         },
