@@ -2,12 +2,12 @@ import path from "path";
 import crypto from "crypto";
 import ejs from "ejs";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
 
 import {
   createUser,
   updateUserOtp,
+  findUserById,
   findUserByEmail,
   comparePassword,
   generateToken,
@@ -121,6 +121,43 @@ const verifyOtpController = asyncWrapper(async (req, res) => {
   res.status(200).json({ message: "OTP verified successfully." });
 });
 
+const resetOtpController = asyncWrapper(async (req, res) => {
+  const { userId } = req.body;
+
+  // Validasi input
+  if (!userId) {
+    return res.status(400).json({
+      message: "User ID is required",
+    });
+  }
+
+  // Cari user berdasarkan ID
+  const user = await findUserById(userId);
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
+    });
+  }
+
+  // Generate OTP dan waktu kadaluarsa
+  const otp = crypto.randomInt(100000, 999999).toString(); // 6 digit OTP
+  const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 menit kadaluarsa
+
+  // Simpan OTP baru dan waktu kadaluwarsa
+  await updateUserOtp(user.id, { otp, otpExpiry });
+
+  // Kirim email registrasi dengan template HTML
+  const htmlContent = await ejs.renderFile(
+    path.join(process.cwd(), "./src/views/emails/otp.ejs"),
+    { otp }
+  );
+  await Email(user.email, "Your OTP Code", htmlContent);
+
+  res.status(200).json({
+    message: "OTP has been reset and sent to your email",
+  });
+});
+
 // done
 const forgotPasswordController = asyncWrapper(async (req, res) => {
   const { email } = req.body;
@@ -190,6 +227,7 @@ const resetPasswordController = asyncWrapper(async (req, res) => {
 export {
   registerController,
   verifyOtpController,
+  resetOtpController,
   login,
   forgotPasswordController,
   resetPasswordController,
