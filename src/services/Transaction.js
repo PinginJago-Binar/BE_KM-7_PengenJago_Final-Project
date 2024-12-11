@@ -71,6 +71,7 @@ const getHistoryAndDetail = async (userId) => {
               airline: {
                 select: {
                   name: true,
+                  logo: true,
                 },
               },
             },
@@ -116,6 +117,7 @@ const getHistoryAndDetail = async (userId) => {
               airline: {
                 select: {
                   name: true,
+                  logo: true,
                 },
               },
             },

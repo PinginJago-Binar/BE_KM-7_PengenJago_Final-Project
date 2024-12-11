@@ -76,6 +76,7 @@ const getHistoryTransactionAndDetail = asyncWrapper(async (req, res) => {
         airlineName: transaction.departureFlight?.airplane?.airline?.name,
         airplaneCode: transaction.departureFlight?.airplane?.airplaneCode,
         seatClass: transaction.departureFlight?.class || transaction.returnFlight?.class,
+        logo: transaction.departureFlight?.airplane?.airline?.logo,
         departure: {
           city: transaction.departureFlight?.departureAirport?.city?.name,
           date: transaction.departureFlight?.departureDate,
@@ -97,6 +98,7 @@ const getHistoryTransactionAndDetail = asyncWrapper(async (req, res) => {
           airlineName: transaction.returnFlight?.airplane?.airline?.name,
           airplaneCode:transaction.returnFlight?.airplane?.airplaneCode,
           seatClass: transaction.departureFlight?.class || transaction.returnFlight?.class,
+          logo: transaction.returnFlight?.airplane?.airline?.logo,
             departure: {
               city: transaction.returnFlight?.departureAirport?.city?.name,
               date: transaction.returnFlight?.departureDate,
