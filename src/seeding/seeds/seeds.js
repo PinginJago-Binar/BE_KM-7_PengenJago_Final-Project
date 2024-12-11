@@ -11,6 +11,7 @@ import seedOrderers from "./orderers.js";
 import seedPassengers from "./passengers.js";
 import seedPaymentDetails from "./paymentDetails.js";
 import seedTransactions from "./transactions.js";
+import seedNotification from "./notification.js";
 import seedUsers from "./users.js";
 
 const runAllSeeds = async () => {
@@ -28,6 +29,7 @@ const runAllSeeds = async () => {
   // await seedPassengers();
   // await seedPaymentDetails();
   // await seedTransactions();
+  await seedNotification();
   await seedUsers();
   console.log("All Seeds Completed!");
 };
