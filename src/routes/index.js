@@ -3,6 +3,7 @@ import homepageRoutes from "./homepageRoutes.js";
 import historyRoutes from "./historyRoutes.js";
 import userRoutes from "./userRoutes.js";
 import authRoutes from "./authRoutes.js";
+import notificationRouter from "./notificationRoutes.js";
 
 const configureRoutes = (app) => { 
   
@@ -11,6 +12,7 @@ const configureRoutes = (app) => {
   app.use('/api/checkout', checkoutRoutes);
   app.use("/api/users", userRoutes);
   app.use("/api/auth", authRoutes);
+  app.use('/api/notification', notificationRouter);
 
 };
 
