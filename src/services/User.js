@@ -147,6 +147,15 @@ const findDeletedUser = async (userId) => {
   });
 };
 
+/**
+ * get specific user by user id
+ * @param {number} userId = your user id
+ * @returns {Promise<Object>}
+ */
+const getUserById = (userId) => {
+  return prisma.user.findUnique({ where: { id: userId } });
+}
+
 export {
   createUser,
   updateUserOtp,
@@ -161,4 +170,5 @@ export {
   getActiveUsers,
   restoreUser,
   findDeletedUser,
+  getUserById
 };

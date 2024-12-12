@@ -24,8 +24,27 @@ const updateOrdererById = async (ordererId, data) => {
   });
 }
 
+/**
+ * Get orderer by orderer id
+ * @param {number} ordererId 
+ * @returns {Promise<Object>}
+ */
+const getOrdererById = async (ordererId) => {
+  return prisma.orderer.findUnique({ where: { id: ordererId } });
+}
+
+/**
+ * Get orderer by booking code from orderer
+ * @param {string} bookingCode
+ * @returns 
+ */
+const getOrdererByBookingCode = async (bookingCode) => {
+  return prisma.orderer.findFirst({ where: { bookingCode } });
+}
 
 export {
   createOrderer,
-  updateOrdererById
+  updateOrdererById,
+  getOrdererById,
+  getOrdererByBookingCode
 }

@@ -134,9 +134,27 @@ const getHistoryAndDetail = async (userId) => {
   });
 };
 
+/**
+ * 
+ * @param {number} ordererId 
+ * @returns 
+ */
+const getTransactionByOrdererId = async (ordererId) => {
+  return prisma.transaction.findFirst({ where: { ordererId } });
+}
+
+const updateTransactionById = async (transactionId, data) => {
+  return prisma.transaction.update({
+    where: { id: transactionId },
+    data
+  });
+}
+
 export {
   createTransaction,
   getTransactionById,
   getTransactionByIdAndUser,
-  getHistoryAndDetail
+  getHistoryAndDetail,
+  getTransactionByOrdererId,
+  updateTransactionById
 }
