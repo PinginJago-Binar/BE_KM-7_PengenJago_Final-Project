@@ -1,19 +1,21 @@
 import nodemailer from "nodemailer";
-import sgTransport from "nodemailer-sendgrid-transport";
 
 const setting =
   process.env.NODE_ENV === "production"
-    ? sgTransport({
-        auth: {
-          api_key: process.env.SENDGRID_API_KEY,
-        },
-      })
-    : {
+    ? {
         host: process.env.MAIL_HOST,
         port: process.env.MAIL_PORT,
         auth: {
           user: process.env.EMAIL_USER,
           pass: process.env.EMAIL_PASS,
+        },
+      }
+    : {
+        host: process.env.MAILTRAP_HOST,
+        port: process.env.MAILTRAP_PORT,
+        auth: {
+          user: process.env.MAILTRAP_USER,
+          pass: process.env.MAILTRAP_PASS,
         },
       };
 
