@@ -31,6 +31,17 @@ const updateUserOtp = async (userId, otpData) => {
 };
 
 /**
+ * Find a user by ID.
+ * @param {number} userId - ID of the user to find
+ * @returns {Promise<Object|null>} - User data or null if not found
+ */
+const findUserById = async (userId) => {
+  return prisma.user.findUnique({
+    where: { id: userId },
+  });
+};
+
+/**
  * Find a user by email.
  * @param {string} email - User's email
  * @returns {Promise<Object|null>}
@@ -159,6 +170,7 @@ const getUserById = (userId) => {
 export {
   createUser,
   updateUserOtp,
+  findUserById,
   findUserByEmail,
   comparePassword,
   generateToken,
