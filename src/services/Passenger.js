@@ -21,10 +21,10 @@ const createPassenger = async (isBulk, data) => {
  * @returns {Promise<Array<Object>>}
  */
 const groupPassengersByType = async (ordererId) => {
-  return await prisma.passenger.groupBy({
+  return await prisma.passenger.groupBy({        
     where: { orderedId: ordererId },
     by: ['passengerType'],
-    _count: { passengerType: true },
+    _count: { passengerType: true },    
   });
 }
 
@@ -49,8 +49,6 @@ const getPassengerByOrdererId = (ordererId) => {
     where: { orderedId: ordererId },
   });
 }
-
-
 
 export {
   getPassengerByOrdererId,

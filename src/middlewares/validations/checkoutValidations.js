@@ -76,10 +76,19 @@ const validateBookingData = (body) => {
   return schema.validate(body);
 };
 
+const validateCheckoutPaymentData = (body) => {
+  const schema = Joi.object({
+    transactionId: Joi.number().integer().positive().required(),
+    userId: Joi.number().integer().positive().required(),
+  });
+
+  return schema.validate(body);
+}
 
 export {
   validateInitialStoreCheckoutPersonalData,
   validateStoreCheckoutPersonalData,
   validateInitialRequest,
   validateBookingData,
+  validateCheckoutPaymentData
 }
