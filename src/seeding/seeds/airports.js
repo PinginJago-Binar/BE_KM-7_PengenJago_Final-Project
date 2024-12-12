@@ -10,6 +10,7 @@ const airports = [
   { name: "Husein Sastranegara", iataCode: "BDO", cityId: 6 },
   { name: "Termindung Airport", iataCode: "SRI", cityId: 7 },
   { name: "APT Pranoto Airport", iataCode: "AAP", cityId: 7 },
+  { name: "Juanda", iataCode: "SUB", cityId: 8 },
 ];
 
 const seedAirports = async () => {

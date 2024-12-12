@@ -9,6 +9,7 @@ const cities = [
   { name: "Sydney", cityCode: "SYD", countryId: 5 },
   { name: "Bandung", cityCode: "BDOA", countryId: 1 },
   { name: "Samarinda", cityCode: "SRIA", countryId: 1 },
+  { name: "Surabaya", cityCode: "SUB", countryId: 1 },
 ];
 
 const seedCities = async () => {
