@@ -28,7 +28,8 @@ model User {
   verifiedAt  DateTime? @map("verified_at")
   deletedAt   DateTime? @map("deleted_at")
 
-  transaction Transaction[]
+  transaction  Transaction[]
+  notification Notification[]
 
   @@map("users")
 }
@@ -233,6 +234,7 @@ model Transaction {
   expiredFilling    DateTime?         @map("expired_filling")
   createdAt         DateTime          @default(now()) @map("created_at")
   updatedAt         DateTime?         @map("updated_at")
+  snapToken         String?           @map("snap_token")
 
   paymentDetail PaymentDetail?
 
@@ -252,14 +254,8 @@ enum StatusTransaction {
 
 model PaymentDetail {
   id                   BigInt      @id @default(autoincrement())
-  transactionId        BigInt      @unique @map("transaction_id")
-  paymentType          PaymentType @map("payment_type")
-  gopayQrCodeUrl       String?     @map("gopay_qr_code_url") @db.VarChar(255)
-  virtualAccountNumber String?     @map("virtual_account_number") @db.VarChar(50)
-  cardNumber           String?     @map("card_number") @db.VarChar(20)
-  cardHolderName       String?     @map("card_holder_name") @db.VarChar(100)
-  expiryDate           String?     @map("expiry_date") @db.VarChar(7)
-  cvv                  String?     @db.VarChar(3)
+  transactionId        BigInt      @unique @map("transaction_id")  
+  paymentType          String      @map("payment_type") 
   createdAt            DateTime    @default(now()) @map("created_at")
   updatedAt            DateTime?   @map("updated_at")
 
@@ -268,8 +264,18 @@ model PaymentDetail {
   @@map("payment_details")
 }
 
-enum PaymentType {
-  gopay
-  virtual_account
-  credit_card
+
+model Notification {
+  id        BigInt    @id @default(autoincrement())
+  userId    BigInt    @map("user_id")
+  notifType String    @map("notif_type")
+  title     String    @db.VarChar(100)
+  message   String    @db.Text
+  isRead    Boolean   @default(false) @map("is_read")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime? @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("notifications")
 }
