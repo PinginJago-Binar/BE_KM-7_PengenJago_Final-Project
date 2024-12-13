@@ -18,12 +18,13 @@
     "prisma:format": "npx prisma format",
     "prisma:show": "npx prisma studio",
     "prisma:seed": "node ./src/seeding/index.js",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest"
+    "test": "vitest"
   },
   "author": "pengenjago team's",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@types/jest": "^29.5.14",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -40,16 +41,24 @@
     "nodemailer": "^6.9.16",
     "nodemailer-sendgrid-transport": "^0.2.0",
     "socket.io": "^4.8.1",
-    "superjson": "^2.2.1"
+    "superjson": "^2.2.1",
+    "ts-jest": "^29.2.5"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
     "@eslint/js": "^9.15.0",
     "@faker-js/faker": "^9.3.0",
     "@jest/globals": "^29.7.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "babel-jest": "^29.7.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.15.0",
     "globals": "^15.12.0",
     "jest": "^29.7.0",
     "nodemon": "^3.1.7",
-    "prisma": "^5.22.0"
+    "prisma": "^5.22.0",
+    "supertest": "^7.0.0",
+    "vitest": "^2.1.8"
   }
 }
