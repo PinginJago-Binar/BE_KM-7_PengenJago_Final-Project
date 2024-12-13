@@ -7,7 +7,7 @@ const checkoutRoutes = new Router();
 checkoutRoutes.get("/:userid/:transactionid", isAuthenticate, getBookingCheckoutDetails);
 checkoutRoutes.post("/", isAuthenticate, createBookingCheckout);
 checkoutRoutes.put("/", isAuthenticate, storeCheckoutPersonalData);
-checkoutRoutes.post("/payment", processPayment);
+checkoutRoutes.post("/payment", isAuthenticate, processPayment);
 checkoutRoutes.post("/notif/payment", paymentNotif);
 
 export default checkoutRoutes;
