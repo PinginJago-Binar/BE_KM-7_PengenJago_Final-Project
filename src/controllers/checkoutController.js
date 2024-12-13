@@ -4,7 +4,7 @@ import convertToJson from "../utils/convertToJson.js";
 import { toBoolean } from "../utils/typeDataConvert.js";
 import { generateRandomString } from "../utils/stringHelper.js";
 import Midtrans from "midtrans-client";
-import { createOrderer, getOrdererByBookingCode, updateOrdererById } from "../services/Orderer.js";
+import { createOrderer, getOrdererByBookingCode, getOrdererById, updateOrdererById } from "../services/Orderer.js";
 import { createTransaction, getTransactionByIdAndUser, getTransactionByOrdererId, updateTransactionById } from "../services/Transaction.js";
 import { getAvailableTickets, markSeatsAsBooked, getSeatByIds } from "../services/Seat.js";
 import { getDetailFlightById, getFlightById } from "../services/Flight.js";
@@ -85,11 +85,16 @@ const getBookingCheckoutDetails = asyncWrapper(async (req, res) => {
   // Calculate tax and prepare response
   const tax = parseFloat(transaction.amount) * TAX_PAYMENT;
 
+  const passengerData = await getPassengerByOrdererId(ordererId);  
+  const ordererData = await getOrdererById(ordererId);
+
   return res.status(200).json({
     status: 200,
     message: 'success',
     data: {
       transaction: convertToJson(transaction),
+      passengers: convertToJson(passengerData),
+      orderer: convertToJson(ordererData),
       flights: {
         departure: convertToJson(departureFlight),
         return: convertToJson(returnFlight),
@@ -151,7 +156,8 @@ const storeCheckoutPersonalData = asyncWrapper(async (req, res, next) => {
   return res.status(200).json({
     status: 200,
     message: 'Successfully saved personal data and booked seats.',
-    data: {      
+    data: { 
+      transaction: convertToJson(transaction),     
       orderer: convertToJson(updatedOrderer),
       passengers: convertToJson(updatedPassengers),
       seats: convertToJson(updatedSeats),
