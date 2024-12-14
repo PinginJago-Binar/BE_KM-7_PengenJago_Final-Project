@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getUserController,
+  getUserByIdController,
   updateUserController,
   softDeleteUserController,
   restoreUserController,
@@ -14,6 +15,7 @@ import {
 const router = express.Router();
 
 router.get("/", getUserController);
+router.get("/:userId", getUserByIdController);
 router.put("/:userId", validate(updateUserSchema), updateUserController);
 router.delete("/:userId", softDeleteUserController);
 router.put("/:userId/restore", restoreUserController);
