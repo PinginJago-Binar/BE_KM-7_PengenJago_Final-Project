@@ -87,7 +87,7 @@ describe("getFlights", () => {
       ];      
 
     prisma.flight.findMany.mockResolvedValue(mockFlights);
-
+    
     const criteria = { where: { class: "economy" } };
     const result = await getFlights(criteria);
 
