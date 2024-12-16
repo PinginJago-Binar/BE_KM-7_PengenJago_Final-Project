@@ -201,6 +201,7 @@ model Passenger {
   identityNumber   String?         @map("identity_number") @db.VarChar(25)
   publisherCountry String?         @map("publisher_country") @db.VarChar(50)
   expiredAt        DateTime?       @map("expired_at")
+  flightType       FlightType?     @map("flight_type")
 
   order Orderer? @relation(fields: [orderedId], references: [id])
   seat  Seat?    @relation(fields: [seatId], references: [id])
@@ -212,6 +213,11 @@ enum PassengerType {
   adult
   child
   baby
+}
+
+enum FlightType {
+  return
+  departure
 }
 
 enum TitlePassenger {

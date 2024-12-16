@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
  * Create empty orderer
  * @returns {Promise<Object>}
  */
-const createOrderer = async () => {
+const createEmptyOrderer = async () => {
   return prisma.orderer.create({
     data: { fullname: '', email: '', numberPhone: '' },
   });
@@ -43,7 +43,7 @@ const getOrdererByBookingCode = async (bookingCode) => {
 }
 
 export {
-  createOrderer,
+  createEmptyOrderer,
   updateOrdererById,
   getOrdererById,
   getOrdererByBookingCode

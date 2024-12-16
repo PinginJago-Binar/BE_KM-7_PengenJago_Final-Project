@@ -43,11 +43,6 @@ const validateStoreCheckoutPersonalData = (body) => {
       })
     ),
     seatIds: Joi.array().items(Joi.number().positive()).unique().required(),
-  }).custom((data, helpers) => {
-    if (data.passengers.length !== data.seatIds.length) {
-      return helpers.message('Jumlah penumpang dan kursi harus sama.');
-    }
-    return data;
   }).validate(body);
 }
 
