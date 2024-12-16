@@ -1,5 +1,6 @@
 import {
   getUserServices,
+  findUserById,
   updateUserService,
   softDeleteUserService,
   getActiveUsers,
@@ -19,6 +20,32 @@ const getUserController = asyncWrapper(async (req, res) => {
 
   res.status(200).json({
     user: convertToJson(users),
+  });
+});
+
+const getUserByIdController = asyncWrapper(async (req, res) => {
+  const { userId } = req.params;
+
+  // Validasi input
+  if (!userId) {
+    return res.status(400).json({
+      message: "User ID is required",
+    });
+  }
+
+  // Panggil service untuk mendapatkan user
+  const user = await findUserById(userId);
+
+  // Jika user tidak ditemukan, kembalikan respons 404
+  if (!user) {
+    return res.status(404).json({
+      message: "User not found",
+    });
+  }
+
+  res.status(200).json({
+    message: "User retrieved successfully",
+    user: convertToJson(user),
   });
 });
 
@@ -95,6 +122,7 @@ const restoreUserController = asyncWrapper(async (req, res) => {
 
 export {
   getUserController,
+  getUserByIdController,
   updateUserController,
   softDeleteUserController,
   getActiveUsersController,

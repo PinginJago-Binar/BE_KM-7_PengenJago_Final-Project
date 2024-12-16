@@ -23,25 +23,26 @@ const createPassenger = async (isBulk, data) => {
 const groupPassengersByType = async (ordererId) => {
   return await prisma.passenger.groupBy({        
     where: { orderedId: ordererId },
-    by: ['passengerType'],
+    by: ['passengerType', 'flightType'],
     _count: { passengerType: true },    
   });
 }
 
 const updatePassengers = async (ordererId, passengers) => {
   const updatePromises = passengers.map((passenger) => {
-    const { passengerType, ...updateData } = passenger;
+    const { id, ...updateData } = passenger;
 
-    return prisma.passenger.updateMany({
+    return prisma.passenger.update({
       where: {
+        id: id,
         orderedId: ordererId,
-        passengerType: passengerType,
+        flightType: passenger.flightType
       },
       data: updateData,
     });
   });
-  
-  await Promise.all(updatePromises);  
+
+  await Promise.all(updatePromises);
 };
 
 const getPassengerByOrdererId = (ordererId) => {
