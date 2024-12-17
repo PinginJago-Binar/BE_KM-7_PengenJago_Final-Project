@@ -4,7 +4,7 @@ import convertToJson from "../utils/convertToJson.js";
 import { toBoolean } from "../utils/typeDataConvert.js";
 import { generateRandomString } from "../utils/stringHelper.js";
 import Midtrans from "midtrans-client";
-import { createOrderer, getOrdererByBookingCode, getOrdererById, updateOrdererById } from "../services/Orderer.js";
+import { createEmptyOrderer, getOrdererByBookingCode, getOrdererById, updateOrdererById } from "../services/Orderer.js";
 import { createTransaction, getTransactionByIdAndUser, getTransactionByOrdererId, updateTransactionById } from "../services/Transaction.js";
 import { getAvailableTickets, markSeatsAsBooked, getSeatByIds } from "../services/Seat.js";
 import { getDetailFlightById, getFlightById } from "../services/Flight.js";
@@ -51,36 +51,14 @@ const getBookingCheckoutDetails = asyncWrapper(async (req, res) => {
     });
   }
 
-  const departurePrice = parseFloat(departureFlight.price);
-  const returnPrice = isPP ? parseFloat(returnFlight.price) : 0;
 
-  // Group passengers by type
-  const passengers = await groupPassengersByType(ordererId);
-
-  // Helper function to calculate passenger prices
-  const calculatePassengerPrices = (passengerType, count, price, flightType) => {
-    let total = 0;
-    if (passengerType === 'adult') {
-      total = price * count;
-    } else if (passengerType === 'child') {
-      total = price * (1 - DISCOUNT_FOR_CHILD) * count;
-    }
-
-    return { type: passengerType, count, total, flightType };
-  };
+  const prices = {
+    departure : parseFloat(departureFlight.price),
+    return : isPP ? parseFloat(returnFlight.price) : 0,
+  }
 
   // Calculate passenger price details
-  const departurePassengerDetails = passengers.map(({ passengerType, _count }) =>
-    calculatePassengerPrices(passengerType, _count.passengerType, departurePrice, 'departure')
-  );
-
-  const returnPassengerDetails = isPP
-    ? passengers.map(({ passengerType, _count }) =>
-        calculatePassengerPrices(passengerType, _count.passengerType, returnPrice, 'return')
-      )
-    : [];
-
-  const passengerDetails = [...departurePassengerDetails, ...returnPassengerDetails];
+  const passengerDetails = await calculatePassengerDetails(ordererId, prices);
 
   // Calculate tax and prepare response
   const tax = parseFloat(transaction.amount) * TAX_PAYMENT;
@@ -135,16 +113,41 @@ const storeCheckoutPersonalData = asyncWrapper(async (req, res, next) => {
     });
   }
 
+  const expiredFilling = new Date(transaction.expiredFilling);
+  const now = new Date();
+  if (now > expiredFilling) {
+    return res.status(410).json({
+      status: 410,
+      message: "Waktu anda mengisi data sudah habis, transaksi ini dibatalkan. Lakukan transaksi kembali!"
+    });
+  }
+
   const ordererId = parseInt(transaction.ordererId);
+  const emptyPassengers = await getPassengerByOrdererId(ordererId);
 
   const updatedOrderer = await updateOrdererById(ordererId, orderer);
-
-  const passengerData = passengers.map((passenger, index) => ({
+  
+  let passengerData = passengers.map((passenger, index) => ({    
     ...passenger,
+    id: emptyPassengers[index].id,
+    flightType: "departure",
     birthDate: new Date(passenger.birthDate).toISOString(),
     expiredAt: new Date(passenger.expiredAt).toISOString(),
     seatId: seatIds[index],
   }));
+
+  if (transaction.returnFlightId != null) {
+    let passengerReturn = passengers.map((passenger, index) => ({
+      ...passenger,
+      id: emptyPassengers[index + 2].id,
+      flightType: "return",
+      birthDate: new Date(passenger.birthDate).toISOString(),
+      expiredAt: new Date(passenger.expiredAt).toISOString(),
+      seatId: seatIds[index + 2],
+    }));
+
+    passengerData = [...passengerData, ...passengerReturn]
+  }  
 
   await updatePassengers(ordererId, passengerData);
   await markSeatsAsBooked(seatIds);
@@ -237,7 +240,7 @@ const createBookingCheckout = asyncWrapper(async (req, res, next) => {
 
 
   // Create Orderer
-  const createdOrderer = await createOrderer();
+  const createdOrderer = await createEmptyOrderer();
 
   // Calculate Payment
   const prices = {
@@ -249,14 +252,29 @@ const createBookingCheckout = asyncWrapper(async (req, res, next) => {
   const totalPayWithTax = totalPay + totalPay * TAX_PAYMENT;
 
   // Prepare Passenger Data
-  const passengerArray = Object.entries(passengers).flatMap(([type, count]) =>
+  let passengerArray = [];
+  let passengerDeparture = Object.entries(passengers).flatMap(([type, count]) =>
     Array.from({ length: count }, () => ({
       orderedId: createdOrderer.id,
       passengerType: type,
+      flightType: "departure"      
     }))
   );
 
-  // Save many passenger
+  let passengerReturn = [];
+  if (pp && returnFlight) {
+    passengerReturn = Object.entries(passengers).flatMap(([type, count]) =>
+      Array.from({ length: count }, () => ({
+        orderedId: createdOrderer.id,
+        passengerType: type,
+        flightType: "return"
+      }))
+    );    
+
+  }
+
+  passengerArray = [...passengerDeparture, ...passengerReturn];
+
   await createPassenger(true, passengerArray);
 
   const deadline = new Date();
@@ -307,6 +325,7 @@ const processPayment = asyncWrapper(async (req, res, next) => {
     return res.status(401).json({ status: 401, message: 'Anda sudah melakukan pembayaran' });
   }
   
+  
   const departureFlightId = parseInt(transaction.departureFlightId);
   const returnFlightId = transaction.returnFlightId ? parseInt(transaction.returnFlightId) : 0;
   const isRoundTrip = returnFlightId > 0;
@@ -322,25 +341,27 @@ const processPayment = asyncWrapper(async (req, res, next) => {
     return res.status(404).json({ status: 404, message: 'Jadwal penerbangan pulang tidak ditemukan' });
   }
 
-  const departurePrice = parseFloat(departureFlight.price);
-  const returnPrice = isRoundTrip ? parseFloat(returnFlight.price) : 0;
+  const prices = {
+    departure: parseFloat(departureFlight.price),
+    return: isRoundTrip ? parseFloat(returnFlight.price) : 0
+  };
 
   const ordererId = parseInt(transaction.ordererId);
   const passengers = await getPassengerByOrdererId(ordererId);
+  
 
-  const passengerDetails = calculatePassengerDetails(passengers, departurePrice, returnPrice, isRoundTrip);
+  const passengerDetails = await calculatePassengerDetails(ordererId, prices);  
 
   const tax = parseInt(transaction.amount * TAX_PAYMENT);
   
-  let itemDetails = generateItemDetails(passengers, departurePrice, returnPrice, isRoundTrip);
+  let itemDetails = generateItemDetails(passengers, prices);
   let taxDetail = {
     id: `${ordererId}${generateRandomString(4)}`,
     name: "Tax",
     quantity: 1,
     price: tax,    
   };
-  itemDetails = [...itemDetails, taxDetail];
-
+  itemDetails = [...itemDetails, taxDetail];  
 
   const bookingCode = `BOOK-${userId}${ordererId}${generateRandomString(5)}`;
   const ordererUpdated = await updateOrdererById(ordererId, { bookingCode });
@@ -365,17 +386,16 @@ const processPayment = asyncWrapper(async (req, res, next) => {
       phone: ordererUpdated.numberPhone,
     },
   };
-
   
   const midtransTransaction = await snap.createTransaction(parameters);
 
   const snapToken = midtransTransaction.token;
 
   const now = new Date();
-  let expiredPayment = new Date(now);
-  expiredPayment.setDate(expiredPayment.getDate() + 1);
+  let expiredPayment = new Date(now);  
+  expiredPayment.setMinutes(expiredPayment.getMinutes() + 15);
 
-  await updateTransactionById(transactionId, { 
+  const updatedTransaction = await updateTransactionById(transactionId, { 
     snapToken,
     expiredPayment: expiredPayment.toISOString(),
     updatedAt: now.toISOString()    
@@ -387,7 +407,8 @@ const processPayment = asyncWrapper(async (req, res, next) => {
     message: 'Success create payment',
     data: {      
       snapToken: snapToken,      
-      redirectUrl: midtransTransaction.redirect_url,      
+      redirectUrl: midtransTransaction.redirect_url,
+      transaction: convertToJson(updatedTransaction),      
       orderer: convertToJson(ordererUpdated),
       flights: {
         departure: convertToJson(departureFlight),
@@ -404,47 +425,45 @@ const processPayment = asyncWrapper(async (req, res, next) => {
 });
 
 // Fungsi bantu untuk menghitung detail harga penumpang
-const calculatePassengerDetails = (passengerGroup, departurePrice, returnPrice, isRoundTrip) => {  
-  const calculatePrice = (type, count, price) => {
-    if (type === 'adult') {
-      return price * count;      
-    } else if (type === 'child') {
-      return price * (1 - DISCOUNT_FOR_CHILD) * count;
-    } else {
-      return 0;
-    }    
-  };
+const calculatePassengerDetails = async (ordererId, prices) => {  
+    // Group passengers by type
+    const passengers = await groupPassengersByType(ordererId);    
+    
+    // Helper function to calculate passenger prices
+    const calculatePassengerPrices = (passengerType, count, prices, flightType) => {
+      const price = flightType === "departure" ? prices.departure : prices.return;
+      let total = 0;
+      
+      if (passengerType === 'adult') {
+        total = price * count;
+      } else if (passengerType === 'child') {
+        total = price * (1 - DISCOUNT_FOR_CHILD) * count;
+      }
+  
+      return { type: passengerType, count, total, flightType };
+    };
+  
+    // Calculate passenger price details
+    const passengerDetails = passengers.map(({ passengerType, _count, flightType }) =>
+      calculatePassengerPrices(passengerType, _count.passengerType, prices, flightType)
+    );  
 
-  const details = passengerGroup.map(passenger => ({
-    type: passenger.passengerType,
-    count: 1,
-    total: calculatePrice(passenger.passengerType, 1, departurePrice),
-    flightType: 'departure',
-  }));
-
-  if (isRoundTrip) {
-    const returnDetails = passengerGroup.map(passenger => ({
-      type: passenger.passengerType,
-      count: 1,
-      total: calculatePrice(passenger.passengerType, 1, returnPrice),
-      flightType: 'return',
-    }));
-    details.push(...returnDetails);
-  }
-
-  return details;
+  return passengerDetails;
 }
 
-const generateItemDetails = (passengers, departurePrice, returnPrice, isRoundTrip) => {
+const generateItemDetails = (passengers, prices) => {
 
-  const createItem = (passenger, price, category) => {
+  const createItem = (passenger, prices) => {
+    const flightType = passenger.flightType;
+    const price = flightType === "departure" ? prices.departure : prices.return;
+ 
     const calculatePrice = (type, count, price) => {
       if (type === 'adult') {
         return price * count;      
       } else if (type === 'child') {
         return price * (1 - DISCOUNT_FOR_CHILD) * count;
       } else {
-        return 0;z
+        return 0;
       }    
     };
 
@@ -453,14 +472,13 @@ const generateItemDetails = (passengers, departurePrice, returnPrice, isRoundTri
       name: passenger.fullname,
       quantity: 1,
       price: calculatePrice(passenger.passengerType, 1, price),
-      category,
+      category: `${flightType} flight`,
     }
   };
 
-  const departureItems = passengers.map((passenger) => createItem(passenger, departurePrice, 'Departure Flight'));
-  const returnItems = isRoundTrip ? passengers.map((passenger) => createItem(passenger, returnPrice, 'Return Flight')) : [];
+  const items = passengers.map((passenger) => createItem(passenger, prices));
 
-  return [...departureItems, ...returnItems];
+  return items;
 }
 
 const paymentNotif = asyncWrapper(async (req, res, next) => {

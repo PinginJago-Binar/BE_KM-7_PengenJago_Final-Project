@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 const getNotificationUser = async (userId) => {
     return prisma.notification.findMany({
         where: {
-            userId: BigInt(userId),
+            userId: userId,
         },
     });
 };
@@ -24,10 +24,10 @@ const findUserId = async (userId) => {
     });
 };
 
-const updateNotification = async (id) => {
+const updateNotification = async (notificationId) => {
     return prisma.notification.update({
         where : {
-            id: BigInt(id), 
+            id: BigInt(notificationId), 
         },
         data : {
             isRead : true,
@@ -36,18 +36,18 @@ const updateNotification = async (id) => {
     });
 };
 
-const findIdNotification = async (id) => {
+const findIdNotification = async (notificationId) => {
     return prisma.notification.findUnique({
         where: {
-            id: BigInt(id),
+            id: BigInt(notificationId),
         },
     });
 };
 
-const deleteNotification = async (id) => {
+const deleteNotification = async (notificationId) => {
     return prisma.notification.delete({
         where: {
-            id: BigInt(id),
+            id: BigInt(notificationId),
         },
     });
 };

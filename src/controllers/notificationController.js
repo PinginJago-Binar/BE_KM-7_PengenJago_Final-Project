@@ -57,14 +57,15 @@ const createNotificationUser = asyncWrapper( async (req, res) => {
 
 const updateNotificationUser = asyncWrapper (async (req, res) => {
     const { id } = req.params;
-    const idNotification = await findIdNotification(id);
+    const notificationId = BigInt(id);
+    const idNotification = await findIdNotification(notificationId);
     if (!idNotification){
         return res.status(404).json({
             success: false,
             message: 'NotificationId tidak tersedia.'
-        })
+        });
     }
-    const notification = await updateNotification(id);
+    const notification = await updateNotification(notificationId);
     
     return res.status(200).json({
         success: true,
@@ -74,20 +75,15 @@ const updateNotificationUser = asyncWrapper (async (req, res) => {
 
 const deleteNotificationUser = asyncWrapper(async (req, res) => {
     const { id } = req.params;
-    const idNotification = await findIdNotification(id);
+    const notificationId = BigInt(id);
+    const idNotification = await findIdNotification(notificationId);
     if (!idNotification){
         return res.status(404).json({
             success: false,
             message: 'NotificationId tidak tersedia.'
         })
     }
-    const notification = await deleteNotification(id);
-    if(!notification){
-        return res.status(400).json({
-            success: false,
-            message: "Gagal menghapus notifikasi.",
-        });
-    }
+    
     return res.status(200).json({
         success: true,
         message: "Berhasil menghapus notifikasi.",

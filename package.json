@@ -18,7 +18,7 @@
     "prisma:format": "npx prisma format",
     "prisma:show": "npx prisma studio",
     "prisma:seed": "node ./src/seeding/index.js",
-    "test": "vitest"
+    "test": "vitest --coverage"
   },
   "author": "pengenjago team's",
   "license": "ISC",

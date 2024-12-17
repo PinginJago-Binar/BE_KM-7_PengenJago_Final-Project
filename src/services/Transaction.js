@@ -159,6 +159,17 @@ const getHistoryAndDetail = async (userId) => {
   });
 };
 
+const groupPassengersByType = async (orderedId) => {
+  return prisma.passenger.groupBy({
+    by: ['passengerType', 'flightType'],
+    where: { orderedId },
+    _count: {
+      passengerType: true,
+    },
+  });
+};
+
+
 /**
  * 
  * @param {number} ordererId 
@@ -181,5 +192,6 @@ export {
   getTransactionByIdAndUser,
   getHistoryAndDetail,
   getTransactionByOrdererId,
-  updateTransactionById
+  updateTransactionById,
+  groupPassengersByType
 }
