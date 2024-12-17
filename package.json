@@ -18,6 +18,8 @@
     "prisma:format": "npx prisma format",
     "prisma:show": "npx prisma studio",
     "prisma:seed": "node ./src/seeding/index.js",
+    "gcloud:deploy": "gcloud app deploy",
+    "gcloud:logs": "gcloud app logs tail -s default",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest"
   },
   "author": "pengenjago team's",

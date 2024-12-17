@@ -1,0 +1,70 @@
+name: Deploy 📤
+
+on:
+  workflow_run:
+    workflows: ['📢 CI Checks']
+    types:
+      - completed
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:    
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and npm
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --frozen-lockfile
+
+      - name: Google Cloud Auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Set up Cloud SDK
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: Set up Cloud SQL instance variable        
+        run: |
+          echo -e "\nbeta_settings:" >> app.yaml
+          echo "  cloud_sql_instances: '${{ secrets.INSTANCE_CONNECTION_NAME }}'" >> app.yaml
+      
+      - name: Check app.yaml
+        run: cat app.yaml
+
+      - name: Create env.yaml with Secrets
+        run: |          
+          echo "env_variables:" > env.yaml          
+          echo "  BASE_URL: '${{ secrets.BASE_URL }}'" >> env.yaml          
+          echo "  NODE_ENV: '${{ secrets.NODE_ENV }}'" >> env.yaml
+          echo "  DATABASE_URL: '${{ secrets.DATABASE_URL }}'" >> env.yaml          
+          echo "  INSTANCE_CONNECTION_NAME: '${{ secrets.INSTANCE_CONNECTION_NAME }}'" >> env.yaml
+          echo "  JWT_SECRET: '${{ secrets.JWT_SECRET }}'" >> env.yaml          
+          echo "  JWT_EXPIRES_IN: '${{ secrets.JWT_EXPIRES_IN }}'" >> env.yaml          
+          echo "  EMAIL_FROM: '${{ secrets.EMAIL_FROM }}'" >> env.yaml
+          echo "  EMAIL_PASS: '${{ secrets.EMAIL_PASS }}'" >> env.yaml
+          echo "  EMAIL_USER: '${{ secrets.EMAIL_USER }}'" >> env.yaml
+          echo "  MAIL_HOST: '${{ secrets.MAIL_HOST }}'" >> env.yaml
+          echo "  MAIL_PORT: '${{ secrets.MAIL_PORT }}'" >> env.yaml
+          echo "  MIDTRANS_CLIENT_KEY: '${{ secrets.MIDTRANS_CLIENT_KEY }}'" >> env.yaml
+          echo "  MIDTRANS_SERVER_KEY: '${{ secrets.MIDTRANS_SERVER_KEY }}'" >> env.yaml
+
+      - name: Check env.yaml
+        run: cat env.yaml
+
+      - name: Deploy to Google App Engine
+        run: |
+          gcloud app deploy
+
+      - name: Clean up files
+        run: rm app.yaml env.yaml
