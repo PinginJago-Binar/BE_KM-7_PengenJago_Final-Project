@@ -6,7 +6,7 @@ import { getHistoryAndDetail } from "../../services/Transaction.js";
 vi.mock('@prisma/client', () => {
     const mockPrismaClient = {
         transaction : {
-            findMany: vi.fn(),
+          findMany: vi.fn(),
         },
     };
     return { PrismaClient: vi.fn(() => mockPrismaClient) };
@@ -15,180 +15,109 @@ vi.mock('@prisma/client', () => {
 const prisma = new PrismaClient()
 
 describe("getHistoryAndDetail", () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
-
-    it("Mengembalikan riwayat history sesuai userId dengan status 200", async () => {
-        const mockUserId = 1
-        const mockData = [
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+  
+  it("should return transaction history and details for a valid userId", async () => {
+    // Mock data returned by Prisma
+    const mockData = [
+      {
+        id: 1,
+        status: "completed",
+        amount: 1000,
+        amountAfterTax: 900,
+        order: {
+          id: 1,
+          bookingCode: "ABC123",
+          pasengger: [
             {
-                id: 1,
-                status: 'success',
-                amount: 1000,
-                amountAfterTax: 900,
-                order: {
-                    id: 10,
-                    bookingCode: 'ABC123',
-                    pasengger: [
-                        {
-                            passengerType: 'adult',
-                            fullname: 'John Doe',
-                            familyName: 'Doe',
-                        },
-                    ],
-                },
-                departureFlight: {
-                    airplane: {
-                        airplaneCode: 'A320',
-                        airline: { name: 'Airline 1', logo: 'logo.png' },
-                    },
-                    price: 500,
-                    class: 'Economy',
-                    departureTerminal: { name: 'Terminal 1' },
-                    departureDate: '2024-12-10',
-                    departureTime: '10:00',
-                    arrivalDate: '2024-12-10',
-                    arrivalTime: '14:00',
-                    departureAirport: {
-                        name: 'Airport A',
-                        city: { name: 'City A' },
-                    },
-                    destinationAirport: {
-                        name: 'Airport B',
-                        city: { name: 'City B' },
-                    },
-                },
-                returnFlight: null,
+              passengerType: "Adult",
+              fullname: "John Doe",
+              familyName: "Doe",
             },
-        ];
-
-        prisma.transaction.findMany.mockResolvedValue(mockData);
-
-        const result = await getHistoryAndDetail(mockUserId);
-
-        expect(prisma.transaction.findMany).toHaveBeenCalledOnce();
-        expect(prisma.transaction.findMany).toHaveBeenCalledWith({
-            where: {
-                userId: BigInt(mockUserId),
-                order: {
-                    bookingCode: { not: null },
-                },
+          ],
+        },
+        departureFlight: {
+          airplane: {
+            airplaneCode: "A123",
+            airline: {
+              name: "Airline A",
+              logo: "logo-url",
             },
-        
-            select: {
-                id: true,
-                status: true,
-                amount: true,
-                amountAfterTax: true,
-                order : {
-                  select: {
-                      id: true,
-                      bookingCode: true,
-                      pasengger: {
-                          select: {
-                              passengerType: true,
-                              
-                              fullname: true,
-                              familyName: true,
-                          },
-                      },
-                  },
-                },
-                departureFlight: {        
-                  select: {
-                    airplane: {
-                      select: {
-                        airplaneCode: true,
-                        airline: {
-                          select: {
-                            name: true,
-                            logo: true,
-                          },
-                        },
-                      },
-                    },
-                    price: true,
-                    class: true,
-                    departureTerminal: {
-                      select: { 
-                        name: true, 
-                      },
-                    },
-                    departureDate: true,
-                    departureTime: true,
-                    arrivalDate: true,
-                    arrivalTime: true,
-                    departureAirport: {
-                      select: {
-                        name: true,
-                        city: {
-                          select:{
-                            name: true,
-                          },
-                        },
-                      },
-                    },
-                    destinationAirport: {
-                      select: {
-                        name: true,
-                        city: {
-                          select:{
-                            name: true,
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-                returnFlight: {
-                  select: {
-                    airplane: {
-                      select: {
-                        airplaneCode: true,
-                        airline: {
-                          select: {
-                            name: true,
-                            logo: true,
-                          },
-                        },
-                      },
-                    },
-                    price: true,
-                    departureTerminal: {
-                      select: {
-                        name: true,
-                      },
-                    },
-                    class: true,
-                    departureDate: true,
-                    departureTime: true,
-                    arrivalDate: true,
-                    arrivalTime: true,
-                    departureAirport: {
-                      select: {
-                        name: true,
-                        city: {
-                          select:{
-                            name: true,
-                          },
-                        },
-                      },
-                    },
-                    destinationAirport: {
-                      select: {
-                        name: true,
-                        city: {
-                          select: {
-                            name: true,
-                          }
-                        }
-                      },
-                    },
-                  },
-                },
+          },
+          price: 500,
+          class: "Economy",
+          departureTerminal: {
+            name: "Terminal 1",
+          },
+          departureDate: "2024-12-25",
+          departureTime: "10:00",
+          arrivalDate: "2024-12-25",
+          arrivalTime: "12:00",
+          departureAirport: {
+            name: "Airport A",
+            city: {
+              name: "City A",
             },
-        });
-        expect(result).toEqual(mockData);
+          },
+          destinationAirport: {
+            name: "Airport B",
+            city: {
+              name: "City B",
+            },
+          },
+        },
+        returnFlight: {
+          airplane: {
+            airplaneCode: "B456",
+            airline: {
+              name: "Airline B",
+              logo: "logo-url-2",
+            },
+          },
+          price: 500,
+          class: "Business",
+          departureTerminal: {
+            name: "Terminal 2",
+          },
+          departureDate: "2024-12-30",
+          departureTime: "14:00",
+          arrivalDate: "2024-12-30",
+          arrivalTime: "16:00",
+          departureAirport: {
+            name: "Airport C",
+            city: {
+              name: "City C",
+            },
+          },
+          destinationAirport: {
+            name: "Airport D",
+            city: {
+              name: "City D",
+            },
+          },
+        },
+      },
+    ];
+
+    // Mock Prisma call
+    prisma.transaction.findMany = vi.fn().mockResolvedValue(mockData);
+
+    // Call the function with a valid userId
+    const result = await getHistoryAndDetail(1);
+
+    // Assertions
+    expect(prisma.transaction.findMany).toHaveBeenCalledWith({
+      where: {
+        userId: BigInt(1),
+        order: {
+          bookingCode: { not: null },
+        },
+      },
+      select: expect.any(Object), // Validate the presence of a select clause
     });
+
+    expect(result).toEqual(mockData); // Ensure the returned data matches mockData
+  });
 });

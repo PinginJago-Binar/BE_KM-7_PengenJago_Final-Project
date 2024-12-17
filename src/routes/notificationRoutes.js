@@ -10,7 +10,7 @@ import { isAuthenticate } from '../middlewares/auth.js';
 const notificationRouter = new express.Router();
 
 notificationRouter.get('/:userId',isAuthenticate, getNotificationByUserId);
-notificationRouter.post('/', createNotificationUser);
+notificationRouter.post('/',isAuthenticate, createNotificationUser);
 notificationRouter.put('/:id',isAuthenticate, updateNotificationUser);
 notificationRouter.delete('/:id',isAuthenticate, deleteNotificationUser);
 

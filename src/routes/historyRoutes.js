@@ -4,6 +4,6 @@ import { isAuthenticate } from "../middlewares/auth.js";
 
 const historyRoutes = new Router();
 
-historyRoutes.get('/:userId', getHistoryTransactionAndDetail);
+historyRoutes.get('/:userId', isAuthenticate, getHistoryTransactionAndDetail);
 
 export default historyRoutes;
