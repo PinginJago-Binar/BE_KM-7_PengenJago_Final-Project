@@ -6,7 +6,7 @@ import { generateRandomString } from "../utils/stringHelper.js";
 import Midtrans from "midtrans-client";
 import { createEmptyOrderer, getOrdererByBookingCode, getOrdererById, updateOrdererById } from "../services/Orderer.js";
 import { createTransaction, getTransactionByIdAndUser, getTransactionByOrdererId, updateTransactionById } from "../services/Transaction.js";
-import { getAvailableTickets, markSeatsAsBooked, getSeatByIds } from "../services/Seat.js";
+import { getAvailableTickets, markSeatsAsBooked, getSeatByIds, markSeatsAsAvailable } from "../services/Seat.js";
 import { getDetailFlightById, getFlightById } from "../services/Flight.js";
 import { createPassenger, getPassengerByOrdererId,groupPassengersByType, updatePassengers } from "../services/Passenger.js";
 import { validateBookingData, validateCheckoutPaymentData, validateInitialRequest, validateInitialStoreCheckoutPersonalData, validateStoreCheckoutPersonalData } from "../middlewares/validations/checkoutValidations.js";
@@ -317,13 +317,13 @@ const processPayment = asyncWrapper(async (req, res, next) => {
     return res.status(404).json({ status: 404, message: 'Transaksi tidak ditemukan!' });
   }
 
-  if (transaction.snapToken !== null) {
-    return res.status(401).json({ status: 401, message: 'Anda sudah pernah membuat pembayaran pada transaksi ini. Cek pada halaman history transaksi untuk melanjutkan pembayaran' });
-  }
+  // if (transaction.snapToken !== null) {
+  //   return res.status(401).json({ status: 401, message: 'Anda sudah pernah membuat pembayaran pada transaksi ini. Cek pada halaman history transaksi untuk melanjutkan pembayaran' });
+  // }
 
-  if (transaction.status === "issued") {
-    return res.status(401).json({ status: 401, message: 'Anda sudah melakukan pembayaran' });
-  }
+  // if (transaction.status === "issued") {
+  //   return res.status(401).json({ status: 401, message: 'Anda sudah melakukan pembayaran' });
+  // }
   
   
   const departureFlightId = parseInt(transaction.departureFlightId);
@@ -487,8 +487,10 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
     transaction_id: midtransTransactionId,
     transaction_status: midtransTransactionStatus,
     fraud_status: fraudStatus,
-    payment_type: paymentType 
+    payment_type: paymentType,
+    expiry_time: expiryTime
   } = req.body;  
+
 
   const orderer = await getOrdererByBookingCode(bookingCode);
   if (!orderer) {
@@ -542,6 +544,15 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
     case "cancel":
     case "deny":
     case "expire":
+      const orderer = await getOrdererByBookingCode(bookingCode);
+      const ordererId = parseInt(orderer.id);
+
+      const passengers = await getPassengerByOrdererId(ordererId);
+      const seatIds = passengers.map(passenger => parseInt(passenger.seatId));
+
+      await markSeatsAsAvailable(seatIds);      
+
+      break;
     case "pending":
       await updateTransactionById(transactionId, {
         status: generateStatus(midtransTransactionStatus),
