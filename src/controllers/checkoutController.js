@@ -139,11 +139,11 @@ const storeCheckoutPersonalData = asyncWrapper(async (req, res, next) => {
   if (transaction.returnFlightId != null) {
     let passengerReturn = passengers.map((passenger, index) => ({
       ...passenger,
-      id: emptyPassengers[index + 2].id,
+      id: emptyPassengers[emptyPassengers.length - (index + 1)].id,
       flightType: "return",
       birthDate: new Date(passenger.birthDate).toISOString(),
       expiredAt: new Date(passenger.expiredAt).toISOString(),
-      seatId: seatIds[index + 2],
+      seatId: seatIds[emptyPassengers.length - (index + 1)],
     }));
 
     passengerData = [...passengerData, ...passengerReturn]
