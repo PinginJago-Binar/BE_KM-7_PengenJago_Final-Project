@@ -21,6 +21,11 @@ app.use(cors());
 
 // routes
 configureRoutes(app);
+app.get("/api/finish", async (req, res) => {
+  res.status(200).json({
+    message: "finish brok"
+  });
+});
 
 app.use(errorHandler);
 
