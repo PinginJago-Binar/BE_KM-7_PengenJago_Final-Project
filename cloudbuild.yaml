@@ -33,3 +33,7 @@ steps:
 substitutions:
   _REGION: 'asia-southeast2'
   _SERVICE_NAME: 'pengenjago-ticketku'
+
+
+options:
+  logging: CLOUD_LOGGING_ONLY
