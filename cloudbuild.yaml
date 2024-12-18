@@ -1,6 +1,6 @@
 steps:
 
-# Step 1: Build Docker image
+# Step 1: Authenticate with the Service Account
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'auth'
@@ -15,11 +15,9 @@ steps:
     - 'versions'
     - 'access'
     - '--secret=ENV_SECRET'
-    - '--consumer-file'
-    - '/workspace/.env'
-  env:
-    GOOGLE_CLOUD_CREDENTIALS: 'projects/$PROJECT_ID/secrets/ENV_SECRET/versions/latest'
+    - '--out-file=/workspace/.env'
 
+# Step 3: Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args:
     - 'build'
@@ -27,13 +25,13 @@ steps:
     - 'gcr.io/pengenjago-ticketku/pengenjago-ticketku'
     - '.'
 
-# Step 2: Push Docker image to Artifact Registry
+# Step 4: Push Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args:
     - 'push'
     - 'gcr.io/pengenjago-ticketku/pengenjago-ticketku'
 
-# Step 3: Deploy to Cloud Run
+# Step 5: Deploy to Cloud Run
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'run'
@@ -53,7 +51,6 @@ steps:
 substitutions:
   _REGION: 'asia-southeast2'
   _SERVICE_NAME: 'pengenjago-ticketku'
-
 
 options:
   logging: NONE
