@@ -37,4 +37,5 @@ substitutions:
 
 options:
   logging: CLOUD_LOGGING_ONLY
-  timeout: '300s'
+
+timeout: '300s'
