@@ -21,9 +21,9 @@ app.use(cors());
 
 // routes
 configureRoutes(app);
-app.get("/api/finish", async (req, res) => {
+app.get("/api/nice", async (req, res) => {
   res.status(200).json({
-    message: "finish brok"
+    message: "nice brok"
   });
 });
 
