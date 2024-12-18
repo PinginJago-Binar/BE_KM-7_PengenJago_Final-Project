@@ -1,22 +1,5 @@
 steps:
 
-# Step 1: Authenticate with the Service Account
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-    - 'auth'
-    - 'activate-service-account'
-    - '--key-file'
-    - '/secrets/GOOGLE_CLOUD_CREDENTIALS'
-
-# Step 2: Access the .env from Secret Manager
-- name: 'gcr.io/cloud-builders/gcloud'
-  args:
-    - 'secrets'
-    - 'versions'
-    - 'access'
-    - '--secret=ENV_SECRET'
-    - '--out-file=/workspace/.env'
-
 # Step 3: Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args:
@@ -53,4 +36,4 @@ substitutions:
   _SERVICE_NAME: 'pengenjago-ticketku'
 
 options:
-  logging: NONE
+  logging: CLOUD_LOGGING_ONLY
