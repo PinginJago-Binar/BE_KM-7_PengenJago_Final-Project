@@ -1,5 +1,25 @@
 steps:
+
 # Step 1: Build Docker image
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'auth'
+    - 'activate-service-account'
+    - '--key-file'
+    - '/secrets/GOOGLE_CLOUD_CREDENTIALS'
+
+# Step 2: Access the .env from Secret Manager
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'secrets'
+    - 'versions'
+    - 'access'
+    - '--secret=ENV_SECRET'
+    - '--consumer-file'
+    - '/workspace/.env'
+  env:
+    GOOGLE_CLOUD_CREDENTIALS: 'projects/$PROJECT_ID/secrets/ENV_SECRET/versions/latest'
+
 - name: 'gcr.io/cloud-builders/docker'
   args:
     - 'build'
@@ -36,6 +56,4 @@ substitutions:
 
 
 options:
-  logging: CLOUD_LOGGING_ONLY
-
-timeout: '300s'
+  logging: NONE
