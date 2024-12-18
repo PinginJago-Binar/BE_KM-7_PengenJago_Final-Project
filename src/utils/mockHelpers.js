@@ -1,4 +1,4 @@
-// tests/utils/mockHelpers.js
+// mockHelpers berfungsi untuk menyederhanakan dan mempercepat proses pembuatan objek req (request) dan res (response) dalam pengujian
 export const mockResponse = () => {
     const res = {};
     res.status = vi.fn().mockImplementation((status) => res);

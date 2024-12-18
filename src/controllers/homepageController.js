@@ -24,37 +24,37 @@ const getCitiesController = asyncWrapper(async (req, res) => {
 });
 
 // controller untuk pencarian penerbangan
-const searchFlightController = asyncWrapper(async (req, res) => {
-  const { departure, destination, departureDate, returnDate, passengers, seatClass } = req.query;
-
-  // parsing dan validasi input
-  const parsedBody = {
-    departure: parseInt(departure),
-    destination: parseInt(destination),
-    departureDate: new Date(departureDate),
-    returnDate: returnDate ? new Date(returnDate) : undefined,
-    passengers: parseInt(passengers),
-    seatClass,
-  };
-
-  const { error } = flightSearchSchema.validate(parsedBody);
-  if (error) {
-    const errorMessages = error.details.map((err) => err.message);
-    return res.status(400).json({
-      status: "error",
-      message: errorMessages.join(', '),
-    });
-  }
-
-  // validasi jumlah penumpang
-  if (parsedBody.passengers > 9) {
-    return res.status(400).json({
-      status: "error",
-      message: 'Maksimum 9 penumpang. (Dewasa dan Anak).',
-    });
-  }
-
+const searchFlightController = async (req, res) => {
   try {
+    const { departure, destination, departureDate, returnDate, passengers, seatClass } = req.query;
+
+    // parsing dan validasi input
+    const parsedBody = {
+      departure: parseInt(departure),
+      destination: parseInt(destination),
+      departureDate: new Date(departureDate),
+      returnDate: returnDate ? new Date(returnDate) : undefined,
+      passengers: parseInt(passengers),
+      seatClass: seatClass || 'economy',
+    };
+
+    const { error } = flightSearchSchema.validate(parsedBody);
+    if (error) {
+      const errorMessages = error.details.map((err) => err.message);
+      return res.status(400).json({
+        status: "error",
+        message: errorMessages.join(', '),
+      });
+    }
+
+    // validasi jumlah penumpang
+    if (parsedBody.passengers > 9) {
+      return res.status(400).json({
+        status: "error",
+        message: 'Maksimum 9 penumpang. (Dewasa dan Anak).',
+      });
+    }
+
     let convertDepartureFlights = [];
     // kriteria pencarian keberangkatan
     const criteria = {
@@ -65,7 +65,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
           gte: new Date(parsedBody.departureDate.setHours(0, 0, 0)),
           lt: new Date(parsedBody.departureDate.setHours(23, 59, 59)),
         },
-        class: parsedBody.seatClass || 'economy',
+        class: parsedBody.seatClass,
       },
       include: {
         airplane: { include: { seat: true } },
@@ -102,7 +102,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
       });
     }
 
-    // pencarian penerbangan kepulangan (jika ada)
+    // pencarian penerbangan kepulangan (opsional)
     let convertReturnFlights = [];
     if (parsedBody.returnDate) {
       const returnCriteria = {
@@ -113,7 +113,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
             gte: new Date(parsedBody.returnDate.setHours(0, 0, 0)),
             lt: new Date(parsedBody.returnDate.setHours(23, 59, 59)),
           },
-          class: parsedBody.seatClass || 'economy',
+          class: parsedBody.seatClass,
         },
         include: {
           airplane: { include: { seat: true } },
@@ -162,14 +162,14 @@ const searchFlightController = asyncWrapper(async (req, res) => {
     });
 
   } catch (error) {
-    return res.status(500).json({
+    res.status(500).json({
       status: "error",
       message: error.message || 'Terjadi kesalahan saat mencari penerbangan.',
     });
   }
-});
+};
 
 export {
   getCitiesController,
   searchFlightController
-  }
+}
