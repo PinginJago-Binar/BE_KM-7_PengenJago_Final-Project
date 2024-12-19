@@ -46,7 +46,6 @@ describe("Testing Service Notification", () => {
         }];
 
         prisma.notification.findMany.mockResolvedValue(mockData);
-        console.log(prisma.notification.findMany.mock.calls);
         const result = await getNotificationUser(mockData);
 
         expect(prisma.notification.findMany).toHaveBeenCalledOnce();
