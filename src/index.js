@@ -21,6 +21,11 @@ app.use(cors());
 
 // routes
 configureRoutes(app);
+app.get("/api/nice", async (req, res) => {
+  res.status(200).json({
+    message: "nice brok"
+  });
+});
 
 app.use(errorHandler);
 
