@@ -3,22 +3,30 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { deleteNotificationUser } from "../../controllers/notificationController.js";
 import { mockRequest, mockResponse } from "../../utils/mockHelpers.js";
 import { findIdNotification, deleteNotification } from "../../services/Notification.js";
+import asyncWrapper from '../../utils/asyncWrapper.js';
+
 
 vi.mock("../../services/Notification.js", () => ({
     findIdNotification: vi.fn(),
     deleteNotification: vi.fn(),
 }));
 
+vi.mock("../../utils/asyncWrapper.js", () => {
+    return {
+      default: (fn) => fn,
+    };
+  });
+  
 describe("Post Notification testing", () => {
     beforeEach(() => {
         vi.clearAllMocks();
     });
 
-    it("should return 404 if notificationId does not exist", async () => {
+    it("harus return 404 jika notificationId tidak ditemukan", async () => {
         const req = mockRequest({ params: { id: "1" } });
         const res = mockResponse();
 
-        findIdNotification.mockResolvedValue(null); // Simulasikan notifikasi tidak ditemukan
+        findIdNotification.mockResolvedValue(null); 
 
         await deleteNotificationUser(req, res);
 
@@ -29,23 +37,22 @@ describe("Post Notification testing", () => {
             message: "NotificationId tidak tersedia."
         });
     });
-
     
-    // it("should return 200 if notification is successfully deleted", async () => {
-    //     const req = mockRequest({ params: { id: "1" } });
-    //     const res = mockResponse();
-
-    //     findIdNotification.mockResolvedValue({ id: 1 }); // Simulasikan notifikasi ditemukan
-    //     deleteNotification.mockResolvedValue({ id: 1 }); // Simulasikan berhasil menghapus notifikasi
-
-    //     await deleteNotificationUser(req, res);
-
-    //     expect(findIdNotification).toHaveBeenCalledWith("1");
-    //     expect(deleteNotification).toHaveBeenCalledWith("1");
-    //     expect(res.status).toHaveBeenCalledWith(200);
-    //     expect(res.json).toHaveBeenCalledWith({
-    //         success: true,
-    //         message: "Berhasil menghapus notifikasi."
-    //     });
-    // });
+    it("harus return 200 jika notification berhasil dihapus", async () => {
+        const req = mockRequest({params: { id: "1" } }); 
+        const res = mockResponse();
+        const mockNotification = { id: BigInt(1) };
+        
+        findIdNotification.mockResolvedValue(mockNotification);
+        deleteNotification.mockResolvedValue(mockNotification);
+        
+        await deleteNotificationUser(req, res);
+        
+        expect(findIdNotification).toHaveBeenCalledWith(BigInt(1));
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            success: true,
+            message: "Berhasil menghapus notifikasi.",
+        });
+    });
 });

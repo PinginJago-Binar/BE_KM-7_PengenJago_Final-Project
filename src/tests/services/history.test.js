@@ -20,7 +20,7 @@ describe("getHistoryAndDetail", () => {
   });
   
   it("should return transaction history and details for a valid userId", async () => {
-    // Mock data returned by Prisma
+
     const mockData = [
       {
         id: 1,
@@ -101,13 +101,10 @@ describe("getHistoryAndDetail", () => {
       },
     ];
 
-    // Mock Prisma call
     prisma.transaction.findMany = vi.fn().mockResolvedValue(mockData);
 
-    // Call the function with a valid userId
     const result = await getHistoryAndDetail(1);
 
-    // Assertions
     expect(prisma.transaction.findMany).toHaveBeenCalledWith({
       where: {
         userId: BigInt(1),
@@ -115,9 +112,9 @@ describe("getHistoryAndDetail", () => {
           bookingCode: { not: null },
         },
       },
-      select: expect.any(Object), // Validate the presence of a select clause
+      select: expect.any(Object),
     });
 
-    expect(result).toEqual(mockData); // Ensure the returned data matches mockData
+    expect(result).toEqual(mockData);
   });
 });

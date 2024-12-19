@@ -4,6 +4,13 @@ import { updateNotificationUser } from '../../controllers/notificationController
 import { updateNotification, findIdNotification } from '../../services/Notification.js';
 import convertToJson from '../../utils/convertToJson.js';
 import { PrismaClient } from "@prisma/client";
+import asyncWrapper from '../../utils/asyncWrapper.js';
+
+vi.mock("../../utils/asyncWrapper.js", () => {
+  return {
+      default: (fn) => fn,
+  };
+});
 
 vi.mock("@prisma/client", () => {
   const mockPrisma = {
@@ -30,7 +37,7 @@ describe("Update Notification User Controller", () => {
     vi.clearAllMocks();
   });
   
-  it("should return 404 if notificationId does not exist", async () => {
+  it("Mengenbalikan return 404 jika notificationId tidak ditemukan", async () => {
     const req = mockRequest({
       params: { id: "1" },
     });
@@ -48,36 +55,36 @@ describe("Update Notification User Controller", () => {
     });
   });
   
-  // it("should return 200 and the updated notification if successful", async () => {
-  //   const mockNotification = {
-  //     id: 1n,
-  //     userId: 1,
-  //     notifType: 'Promosi',
-  //     title: 'Update Title',
-  //     message: 'Updated notification',
-  //     createdAt: '2024-12-14T13:03:37.515Z',
-  //     isRead: true,
-  //     updatedAt: '2024-12-14T13:03:37.515Z',
-  //   };
+  it("mengembalikan return 200 dan update notification jika berhasil", async () => {
+    const mockNotification = {
+      id: 1n,
+      userId: 1,
+      notifType: 'Promosi',
+      title: 'Update Title',
+      message: 'Updated notification',
+      createdAt: '2024-12-14T13:03:37.515Z',
+      isRead: true,
+      updatedAt: '2024-12-14T13:03:37.515Z',
+    };
         
-  //   const req = mockRequest({
-  //     params: { id: "1" },
-  //   });
-  //   const res = mockResponse();
+    const req = mockRequest({
+      params: { id: "1" },
+    });
+    const res = mockResponse();
     
-  //   findIdNotification.mockResolvedValue(mockNotification);
-  //   updateNotification.mockResolvedValue(mockNotification);
-  //   convertToJson.mockReturnValue(mockNotification);
+    findIdNotification.mockResolvedValue(mockNotification);
+    updateNotification.mockResolvedValue(mockNotification);
+    convertToJson.mockReturnValue(mockNotification);
     
-  //   await updateNotificationUser(req, res);
+    await updateNotificationUser(req, res);
     
-  //   console.log("res.status.mock.calls:", res.status.mock.calls);
-  //   console.log("res.json.mock.calls:", res.json.mock.calls);
+    console.log("res.status.mock.calls:", res.status.mock.calls);
+    console.log("res.json.mock.calls:", res.json.mock.calls);
     
-  //   expect(res.status).toHaveBeenCalledWith(200);
-  //   expect(res.json).toHaveBeenCalledWith({
-  //     success: true,
-  //     data: mockNotification,
-  //   });
-  // });  
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      success: true,
+      data: convertToJson(mockNotification),
+    });
+  });  
 });
