@@ -37,7 +37,7 @@ describe("Update Notification User Controller", () => {
     vi.clearAllMocks();
   });
   
-  it("Mengenbalikan return 404 jika notificationId tidak ditemukan", async () => {
+  it("Mengembalikan return 404 jika notificationId tidak ditemukan", async () => {
     const req = mockRequest({
       params: { id: "1" },
     });
@@ -77,9 +77,6 @@ describe("Update Notification User Controller", () => {
     convertToJson.mockReturnValue(mockNotification);
     
     await updateNotificationUser(req, res);
-    
-    console.log("res.status.mock.calls:", res.status.mock.calls);
-    console.log("res.json.mock.calls:", res.json.mock.calls);
     
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
