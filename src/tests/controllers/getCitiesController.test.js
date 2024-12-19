@@ -2,10 +2,17 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { getCitiesController } from '../../controllers/homepageController.js';
 import { getCities } from '../../services/City.js';
 import { mockResponse, mockRequest } from '../../utils/mockHelpers.js';
+import asyncWrapper from '../../utils/asyncWrapper.js'; 
 
 vi.mock('../../services/City.js', () => ({
   getCities: vi.fn()
 }));
+
+vi.mock("../../utils/asyncWrapper.js", () => {
+  return {
+    default: (fn) => fn,
+  };
+});
 
 describe('getCitiesController', () => {
   beforeEach(() => {

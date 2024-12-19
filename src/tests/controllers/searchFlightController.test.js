@@ -3,6 +3,7 @@ import { searchFlightController } from '../../controllers/homepageController.js'
 import { getFlights } from '../../services/Flight.js';
 import convertToJson from '../../utils/convertToJson.js';
 import { mockResponse, mockRequest } from '../../utils/mockHelpers.js';
+import asyncWrapper from '../../utils/asyncWrapper.js'; 
 
 vi.mock('../../services/Flight.js', () => ({
   getFlights: vi.fn(),
@@ -11,6 +12,12 @@ vi.mock('../../services/Flight.js', () => ({
 vi.mock('../../utils/convertToJson.js', () => ({
   default: vi.fn(),
 }));
+
+vi.mock("../../utils/asyncWrapper.js", () => {
+  return {
+    default: (fn) => fn,
+  };
+});
 
 describe('searchFlightController', () => {
   let req;

@@ -24,37 +24,37 @@ const getCitiesController = asyncWrapper(async (req, res) => {
 });
 
 // controller untuk pencarian penerbangan
-const searchFlightController = async (req, res) => {
+const searchFlightController = asyncWrapper(async (req, res) => {
+  const { departure, destination, departureDate, returnDate, passengers, seatClass } = req.query;
+
+  // parsing dan validasi input
+  const parsedBody = {
+    departure: parseInt(departure),
+    destination: parseInt(destination),
+    departureDate: new Date(departureDate),
+    returnDate: returnDate ? new Date(returnDate) : undefined,
+    passengers: parseInt(passengers),
+    seatClass: seatClass || 'economy',
+  };
+
+  const { error } = flightSearchSchema.validate(parsedBody);
+  if (error) {
+    const errorMessages = error.details.map((err) => err.message);
+    return res.status(400).json({
+      status: "error",
+      message: errorMessages.join(', '),
+    });
+  }
+
+  // validasi jumlah penumpang
+  if (parsedBody.passengers > 9) {
+    return res.status(400).json({
+      status: "error",
+      message: 'Maksimum 9 penumpang. (Dewasa dan Anak).',
+    });
+  }
+
   try {
-    const { departure, destination, departureDate, returnDate, passengers, seatClass } = req.query;
-
-    // parsing dan validasi input
-    const parsedBody = {
-      departure: parseInt(departure),
-      destination: parseInt(destination),
-      departureDate: new Date(departureDate),
-      returnDate: returnDate ? new Date(returnDate) : undefined,
-      passengers: parseInt(passengers),
-      seatClass: seatClass || 'economy',
-    };
-
-    const { error } = flightSearchSchema.validate(parsedBody);
-    if (error) {
-      const errorMessages = error.details.map((err) => err.message);
-      return res.status(400).json({
-        status: "error",
-        message: errorMessages.join(', '),
-      });
-    }
-
-    // validasi jumlah penumpang
-    if (parsedBody.passengers > 9) {
-      return res.status(400).json({
-        status: "error",
-        message: 'Maksimum 9 penumpang. (Dewasa dan Anak).',
-      });
-    }
-
     let convertDepartureFlights = [];
     // kriteria pencarian keberangkatan
     const criteria = {
@@ -102,7 +102,7 @@ const searchFlightController = async (req, res) => {
       });
     }
 
-    // pencarian penerbangan kepulangan (opsional)
+    // pencarian penerbangan kepulangan (jika ada)
     let convertReturnFlights = [];
     if (parsedBody.returnDate) {
       const returnCriteria = {
@@ -162,12 +162,12 @@ const searchFlightController = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       status: "error",
       message: error.message || 'Terjadi kesalahan saat mencari penerbangan.',
     });
   }
-};
+});
 
 export {
   getCitiesController,
