@@ -36,7 +36,7 @@ const getBookingCheckoutDetails = asyncWrapper(async (req, res) => {
   // Fetch flight details
   const departureFlight = await getDetailFlightById(departureFlightId);
   const returnFlight = returnFlightId ? await getDetailFlightById(returnFlightId) : null;
-  const isPP = Boolean(returnFlight);
+  const isPP = Boolean(returnFlightId);
   
   if (!departureFlight) {
     return res.status(404).json({
@@ -196,7 +196,7 @@ const createBookingCheckout = asyncWrapper(async (req, res, next) => {
   // Validate Booking Data
   const { error: dataValidationError } = validateBookingData(req.body);
   if (dataValidationError) return next(dataValidationError);
-
+  console.log(req.body)
   const { passengers, userId: rawUserId, flightIds, pp: rawPp } = req.body;
   const pp = toBoolean(rawPp);
   const userId = parseInt(rawUserId);
