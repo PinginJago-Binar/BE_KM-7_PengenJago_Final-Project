@@ -1,11 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getFlights } from "../../services/Flight.js";
+import { 
+  getFlights,
+  getDetailFlightById,
+  getFlightById
+} from "../../services/Flight.js";
 import { PrismaClient } from "@prisma/client";
 
 vi.mock("@prisma/client", () => {
   const mockPrisma = {
     flight: {
       findMany: vi.fn(),
+      findUnique: vi.fn(),
+      findFirst: vi.fn(),
     },
   };
   return { PrismaClient: vi.fn(() => mockPrisma) };
@@ -13,7 +19,7 @@ vi.mock("@prisma/client", () => {
 
 const prisma = new PrismaClient();
 
-describe("getFlights", () => {
+describe("Flights service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -93,5 +99,59 @@ describe("getFlights", () => {
 
     expect(prisma.flight.findMany).toHaveBeenCalledWith(criteria);
     expect(result).toEqual(mockFlights);
+  });
+
+  it('should return the correct flight for the given id', async () => {
+    const flightId = 1;
+    const mockFlight = { id: flightId, airline: 'Airline Name', destination: 'Destination' };
+
+    // Mock the findUnique method to return the mock flight
+    prisma.flight.findUnique.mockResolvedValue(mockFlight);
+
+    const result = await getFlightById(flightId);
+
+    expect(result).toEqual(mockFlight);
+    expect(prisma.flight.findUnique).toHaveBeenCalledWith({
+      where: { id: flightId },
+    });
+  });
+
+  it('should return the correct flight with related details for the given flightId', async () => {
+    const flightId = 1;
+    const mockFlight = {
+      id: flightId,
+      departureAirport: { name: 'Airport A' },
+      returnFlight: { id: 2, departure: '2024-12-20' },
+      departureTerminal: { terminal: 'T1' },
+      airplane: {
+        id: 1,
+        airline: { name: 'Airline A' },
+        seat: [
+          { id: 1, status: 'available' },
+          { id: 2, status: 'booked' }
+        ]
+      }
+    };
+
+    // Mock the findFirst method to return the mock flight
+    prisma.flight.findFirst.mockResolvedValue(mockFlight);
+
+    const result = await getDetailFlightById(flightId);
+
+    expect(result).toEqual(mockFlight);
+    expect(prisma.flight.findFirst).toHaveBeenCalledWith({
+      where: { id: flightId },
+      include: {
+        departureAirport: true,
+        returnFlight: true,
+        departureTerminal: true,
+        airplane: {
+          include: {
+            airline: true,
+            seat: true
+          }
+        }
+      }
+    });
   });
 });
