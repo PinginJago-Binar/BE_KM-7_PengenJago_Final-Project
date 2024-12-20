@@ -9,9 +9,9 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/**/*.js'], // File yang ingin diukur coverage-nya
-      exclude: ['node_modules', 'test'], // File yang diabaikan
-      all: true, // Mengukur coverage untuk semua file, bahkan yang tidak diuji
+      include: ['src/**/*.js'],
+      exclude: ['node_modules', 'test', 'src/seeding', 'src/media', 'src/libs', 'src/routes', 'src/index.js', 'src/server.js', 'src/config'], // File yang diabaikan
+      all: true,
     },
   }
 });
