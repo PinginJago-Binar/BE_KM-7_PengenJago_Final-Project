@@ -37,6 +37,10 @@ API
 - **View**:
   - Tampilan aplikasi seperti mailer.
 
+- **Tests**:
+  - Kumpulan pengujian untuk memastikan bahwa fungsi-fungsi dan logika dalam aplikasi berjalan sesuai dengan yang diharapkan. Pengujian dilakukan menggunakan framework Vitest dan memanfaatkan mock untuk mengisolasi dependensi.
+  RUN: npx vitest run --coverage
+
 ## Fitur
 
 - **Belum tersedia**
