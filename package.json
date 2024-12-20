@@ -18,7 +18,7 @@
     "prisma:format": "npx prisma format",
     "prisma:show": "npx prisma studio",
     "prisma:seed": "node ./src/seeding/index.js",
-    "test": "vitest"
+    "test": "vitest --coverage"
   },
   "author": "pengenjago team's",
   "license": "ISC",
@@ -42,6 +42,7 @@
     "nodemailer-sendgrid-transport": "^0.2.0",
     "socket.io": "^4.8.1",
     "superjson": "^2.2.1",
+    "swagger-ui-express": "^5.0.1",
     "ts-jest": "^29.2.5"
   },
   "devDependencies": {

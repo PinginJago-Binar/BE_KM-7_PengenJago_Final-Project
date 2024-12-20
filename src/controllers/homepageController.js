@@ -34,7 +34,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
     departureDate: new Date(departureDate),
     returnDate: returnDate ? new Date(returnDate) : undefined,
     passengers: parseInt(passengers),
-    seatClass,
+    seatClass: seatClass || 'economy',
   };
 
   const { error } = flightSearchSchema.validate(parsedBody);
@@ -65,7 +65,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
           gte: new Date(parsedBody.departureDate.setHours(0, 0, 0)),
           lt: new Date(parsedBody.departureDate.setHours(23, 59, 59)),
         },
-        class: parsedBody.seatClass || 'economy',
+        class: parsedBody.seatClass,
       },
       include: {
         airplane: { include: { seat: true } },
@@ -113,7 +113,7 @@ const searchFlightController = asyncWrapper(async (req, res) => {
             gte: new Date(parsedBody.returnDate.setHours(0, 0, 0)),
             lt: new Date(parsedBody.returnDate.setHours(23, 59, 59)),
           },
-          class: parsedBody.seatClass || 'economy',
+          class: parsedBody.seatClass,
         },
         include: {
           airplane: { include: { seat: true } },
@@ -172,4 +172,4 @@ const searchFlightController = asyncWrapper(async (req, res) => {
 export {
   getCitiesController,
   searchFlightController
-  }
+}
