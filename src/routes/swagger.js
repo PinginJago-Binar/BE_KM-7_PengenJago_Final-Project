@@ -1,7 +1,7 @@
 import swaggerUi from "swagger-ui-express";
 import fs from "fs";
 
-const swaggerFile = fs.readFileSync("./api-docs.json", "utf8");
+const swaggerFile = fs.readFileSync("./ticketku-docs.json", "utf8");
 const swaggerDocument = JSON.parse(swaggerFile);
 
 const swagger = (app) => {

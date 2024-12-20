@@ -776,9 +776,9 @@
         "tags": [
           "Homepage"
         ],
-        "summary": "Search Flights Without returnDate",
-        "description": "endpoint ini untuk testing ketika user tidak menggunakan return date.\n\nnomor pada value merupakan id city.",
-        "operationId": "SearchFlightsWithoutreturnDate",
+        "summary": "Search Flights",
+        "description": "endpoint ini untuk testing ketika user mencari jadwal penerbangan.\n\nnomor pada value merupakan id city.",
+        "operationId": "SearchFlights",
         "parameters": [
           {
             "name": "departure",
@@ -816,6 +816,18 @@
             "schema": {
               "type": "string",
               "example": "2024-12-20"
+            }
+          },
+          {
+            "name": "returnDate",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "style": "form",
+            "explode": true,
+            "schema": {
+              "type": "string",
+              "example": "2024-12-26"
             }
           },
           {
@@ -924,7 +936,7 @@
                 "schema": {
                   "allOf": [
                     {
-                      "$ref": "#/components/schemas/success"
+                      "$ref": "#/components/schemas/success-departureflights"
                     },
                     {
                       "example": {
@@ -1352,7 +1364,7 @@
                 "schema": {
                   "allOf": [
                     {
-                      "$ref": "#/components/schemas/flightnotfound1"
+                      "$ref": "#/components/schemas/departureflightnotfound1"
                     },
                     {
                       "example": {
@@ -1467,7 +1479,7 @@
                 "schema": {
                   "allOf": [
                     {
-                      "$ref": "#/components/schemas/success2"
+                      "$ref": "#/components/schemas/success"
                     },
                     {
                       "example": {
@@ -5199,8 +5211,8 @@
           }
         }
       },
-      "flightnotfound1": {
-        "title": "flightnotfound1",
+      "departureflightnotfound1": {
+        "title": "departureflightnotfound1",
         "required": [
           "status",
           "message"
@@ -5259,8 +5271,8 @@
           "message": "Maaf, Tiket habis. Silakan cari perjalanan lain."
         }
       },
-      "success": {
-        "title": "success",
+      "success-departureflights": {
+        "title": "success-departureflights",
         "required": [
           "status",
           "message",
@@ -6007,48 +6019,8 @@
           "airportId": "1"
         }
       },
-      "oneoftheflightsismissing1": {
-        "title": "oneoftheflightsismissing1",
-        "required": [
-          "status",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "example": {
-          "status": "error",
-          "message": "Maaf, pencarian anda tidak ditemukan. Coba cari perjalanan lainnya."
-        }
-      },
-      "ticketssoldoutononeoftheflights1": {
-        "title": "ticketssoldoutononeoftheflights1",
-        "required": [
-          "status",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
-          }
-        },
-        "example": {
-          "status": "error",
-          "message": "Maaf, Tiket habis. Silakan cari perjalanan lain."
-        }
-      },
-      "success1": {
-        "title": "success1",
+      "success-returnflights": {
+        "title": "success-returnflights",
         "required": [
           "status",
           "message",
@@ -6740,8 +6712,28 @@
           }
         }
       },
-      "success2": {
-        "title": "success2",
+      "returnflightnotfound1": {
+        "title": "returnflightnotfound1",
+        "required": [
+          "status",
+          "message"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "example": {
+          "status": "error",
+          "message": "Maaf, pencarian Anda tidak ditemukan untuk kepulangan. Coba cari perjalanan lainnya."
+        }
+      },
+      "success": {
+        "title": "success",
         "required": [
           "status",
           "data"
