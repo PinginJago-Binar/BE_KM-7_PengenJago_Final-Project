@@ -1,0 +1,39 @@
+steps:
+
+# Step 3: Build Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'build'
+    - '-t'
+    - 'gcr.io/pengenjago-ticketku/pengenjago-ticketku'
+    - '.'
+
+# Step 4: Push Docker image to Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'push'
+    - 'gcr.io/pengenjago-ticketku/pengenjago-ticketku'
+
+# Step 5: Deploy to Cloud Run
+- name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'run'
+    - 'deploy'
+    - 'pengenjago-ticketku'
+    - '--image'
+    - 'gcr.io/pengenjago-ticketku/pengenjago-ticketku'
+    - '--platform'
+    - 'managed'
+    - '--region'
+    - 'asia-southeast2'
+    - '--port'
+    - '3000'
+    - '--allow-unauthenticated'
+
+# Substitutions (optional)
+substitutions:
+  _REGION: 'asia-southeast2'
+  _SERVICE_NAME: 'pengenjago-ticketku'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
