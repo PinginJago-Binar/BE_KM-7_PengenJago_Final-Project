@@ -28,7 +28,7 @@ const registerController = asyncWrapper(async (req, res) => {
   // Cek apakah email sudah digunakan
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
-    throw new Error("Email is already in use.");
+    return res.status(409).json({ message: "Email is already in use." });
   }
 
   // Hash password
@@ -69,18 +69,20 @@ const login = asyncWrapper(async (req, res) => {
   // Cari user berdasarkan email
   const user = await findUserByEmail(email);
   if (!user) {
-    throw new Error("Invalid email or password");
+    return res.status(401).json({ message: "Invalid email or password." });
   }
 
   // Cek apakah user sudah memverifikasi OTP
   if (!user.verifiedAt) {
-    throw new Error("Please verify your account before logging in.");
+    return res
+      .status(403)
+      .json({ message: "Please verify your account before logging in." });
   }
 
   // Validasi password
   const validPassword = await comparePassword(password, user.password);
   if (!validPassword) {
-    throw new Error("Invalid email or password");
+    return res.status(401).json({ message: "Invalid email or password." });
   }
 
   const userJson = convertToJson(user);
@@ -101,12 +103,17 @@ const verifyOtpController = asyncWrapper(async (req, res) => {
 
   // Cari user berdasarkan userId
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (!user) throw new Error("User not found.");
+  if (!user) {
+    return res.status(404).json({ message: "User not found." });
+  }
 
   // Validasi OTP
-  if (user.otp !== otp) throw new Error("Invalid OTP.");
-  if (user.otpExpiry && user.otpExpiry < new Date())
-    throw new Error("OTP has expired.");
+  if (user.otp !== otp) {
+    return res.status(400).json({ message: "Invalid OTP." });
+  }
+  if (user.otpExpiry && user.otpExpiry < new Date()) {
+    return res.status(400).json({ message: "OTP has expired." });
+  }
 
   // Update status verifikasi dan set verifiedAt setelah berhasil diverifikasi
   await prisma.user.update({
@@ -165,7 +172,7 @@ const forgotPasswordController = asyncWrapper(async (req, res) => {
   // Cari user berdasarkan email
   const user = await findUserByEmail(email);
   if (!user) {
-    throw new Error("User not found");
+    return res.status(404).json({ message: "User not found" });
   }
 
   const userJson = convertToJson(user);
@@ -174,7 +181,7 @@ const forgotPasswordController = asyncWrapper(async (req, res) => {
   const resetToken = generateToken(userJson);
 
   // Buat reset link
-  const resetLink = `${process.env.BASE_URL}/auth/forget-pass?token=${resetToken}`;
+  const resetLink = `${process.env.FE_URL}/auth/forget-pass?token=${resetToken}`;
 
   // Path ke template email
   const templatePath = path.join(
@@ -199,14 +206,12 @@ const resetPasswordController = asyncWrapper(async (req, res) => {
 
   // Validasi input
   if (!token || !newPassword || !confirmPassword) {
-    return res.status(400).json({
-      message: "Token, newPassword, and confirmPassword are required",
-    });
+    throw new Error("Token, newPassword, and confirmPassword are required");
   }
 
   // Validasi password match
   if (newPassword !== confirmPassword) {
-    throw new Error("Passwords do not match");
+    return res.status(400).json({ message: "Passwords do not match" });
   }
 
   // Verifikasi token
