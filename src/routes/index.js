@@ -7,7 +7,7 @@ import notificationRouter from "./notificationRoutes.js";
 
 const configureRoutes = (app) => { 
   
-  app.use('/api/homepage', homepageRoutes);  
+  app.use('/api', homepageRoutes);  
   app.use('/api/history', historyRoutes);
   app.use('/api/checkout', checkoutRoutes);
   app.use("/api/users", userRoutes);
