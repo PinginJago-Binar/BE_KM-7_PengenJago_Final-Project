@@ -1,6 +1,6 @@
 steps:
 
-# Step 3: Build Docker image
+# Step 1: Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
   args:
     - 'build'
@@ -8,13 +8,13 @@ steps:
     - 'gcr.io/pengenjago-ticketku/pengenjago-ticketku'
     - '.'
 
-# Step 4: Push Docker image to Artifact Registry
+# Step 2: Push Docker image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args:
     - 'push'
     - 'gcr.io/pengenjago-ticketku/pengenjago-ticketku'
 
-# Step 5: Deploy to Cloud Run
+# Step 3: Deploy to Cloud Run
 - name: 'gcr.io/cloud-builders/gcloud'
   args:
     - 'run'

@@ -1,17 +1,17 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { deleteNotificationUser } from "../../controllers/notificationController.js";
-import { mockRequest, mockResponse } from "../../utils/mockHelpers.js";
-import { findIdNotification, deleteNotification } from "../../services/Notification.js";
-import asyncWrapper from '../../utils/asyncWrapper.js';
+import { deleteNotificationUser } from "../../../controllers/notificationController.js";
+import { mockRequest, mockResponse } from "../../../utils/mockHelpers.js";
+import { findIdNotification, deleteNotification } from "../../../services/Notification.js";
+import asyncWrapper from '../../../utils/asyncWrapper.js';
 
 
-vi.mock("../../services/Notification.js", () => ({
+vi.mock("../../../services/Notification.js", () => ({
     findIdNotification: vi.fn(),
     deleteNotification: vi.fn(),
 }));
 
-vi.mock("../../utils/asyncWrapper.js", () => {
+vi.mock("../../../utils/asyncWrapper.js", () => {
     return {
       default: (fn) => fn,
     };
