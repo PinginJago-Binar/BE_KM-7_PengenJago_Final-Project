@@ -1,18 +1,21 @@
-import { getCetakTiketById } from "../services/Transaction.js";
+import { getCetakTiketById, getTransactionById } from "../services/Transaction.js";
 import asyncWrapper from "../utils/asyncWrapper.js";
 import PDFDocument from 'pdfkit';
 import { drawSeparator, formatDate, formatTime } from "../utils/ticketHelpers.js";
 
 const createTicket = asyncWrapper(async (req, res) => {
     const { transactionId } = req.params;
-    const ticketData = await getCetakTiketById(transactionId);
 
-    if (!ticketData) {
+    const transaction = await getTransactionById(transactionId)
+    
+    if(!transaction){
         return res.status(404).json({
             success: false,
             message: "Transaction not found"
         });
     }
+
+    const ticketData = await getCetakTiketById(transactionId);
     
     const buffers = [];
     const doc = new PDFDocument({
