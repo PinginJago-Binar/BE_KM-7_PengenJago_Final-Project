@@ -4,7 +4,8 @@ import {
     getTransactionById, 
     getTransactionByIdAndUser, 
     getTransactionByOrdererId, 
-    updateTransactionById 
+    updateTransactionById,
+    getCetakTiketById 
 } from "../../services/Transaction.js";
 import { PrismaClient } from "@prisma/client";
 
@@ -176,5 +177,59 @@ describe("Transaction Service", () => {
           data: mockData,
         });
         expect(result).toEqual(mockUpdatedTransaction);
+      });
+
+      it("should return transaction data when transactionId exists", async () => {
+        // Mock data
+        const mockTransaction = {
+          order: {
+            bookingCode: "ABC123",
+            pasengger: [
+              {
+                title: "Mr.",
+                passengerType: "Adult",
+                fullname: "John",
+                familyName: "Doe",
+                seat: { code: "12A" },
+              },
+            ],
+          },
+          departureFlight: {
+            airplane: {
+              airplaneCode: "XYZ123",
+              baggage: 30,
+              cabinBaggage: 7,
+              airline: { name: "Airline Name", logo: "/logo.png" },
+            },
+            price: 500,
+            class: "Economy",
+            departureTerminal: { name: "Terminal 1" },
+            departureDate: "2024-12-01",
+            departureTime: "10:00",
+            arrivalDate: "2024-12-01",
+            arrivalTime: "14:00",
+            departureAirport: {
+              name: "Airport A",
+              city: { name: "City A" },
+            },
+            destinationAirport: {
+              name: "Airport B",
+              city: { name: "City B" },
+            },
+          },
+        };
+    
+        // Set mock implementation
+        prismaMock.transaction.findUnique.mockResolvedValue(mockTransaction);
+    
+        const transactionId = "12345";
+        const result = await getCetakTiketById(transactionId);
+    
+        // Assertions
+        expect(prismaMock.transaction.findUnique).toHaveBeenCalledWith({
+          where: { id: transactionId },
+          select: expect.any(Object), // Ensure the select object is defined
+        });
+        expect(result).toEqual(mockTransaction);
       });
 });

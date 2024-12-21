@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getNotificationByUserId } from '../../controllers/notificationController.js';
-import { getNotificationUser } from '../../services/Notification.js';
-import { mockRequest, mockResponse } from '../../utils/mockHelpers.js';
-import convertToJson from '../../utils/convertToJson.js';
+import { getNotificationByUserId } from '../../../controllers/notificationController.js';
+import { getNotificationUser } from '../../../services/Notification.js';
+import { mockRequest, mockResponse } from '../../../utils/mockHelpers.js';
+import convertToJson from '../../../utils/convertToJson.js';
 
-vi.mock('../../services/Notification.js');
+vi.mock('../../../services/Notification.js');
 
 describe('getHistoryController', () => {
     beforeEach(() => {
