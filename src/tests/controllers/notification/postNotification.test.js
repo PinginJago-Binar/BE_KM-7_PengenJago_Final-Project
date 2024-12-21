@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createNotificationUser } from '../../controllers/notificationController.js';
-import { findUserId, createNotification } from '../../services/Notification.js';
-import { mockRequest, mockResponse } from '../../utils/mockHelpers.js';
-import convertToJson from '../../utils/convertToJson';
+import { createNotificationUser } from '../../../controllers/notificationController.js';
+import { findUserId, createNotification } from '../../../services/Notification.js';
+import { mockRequest, mockResponse } from '../../../utils/mockHelpers.js';
+import convertToJson from '../../../utils/convertToJson.js';
 import { PrismaClient } from '@prisma/client';
-import asyncWrapper from '../../utils/asyncWrapper.js';
+import asyncWrapper from '../../../utils/asyncWrapper.js';
 
-vi.mock("../../utils/asyncWrapper.js", () => {
+vi.mock("../../../utils/asyncWrapper.js", () => {
     return {
         default: (fn) => fn,
     };
@@ -24,12 +24,12 @@ vi.mock("@prisma/client", () => {
 
 const prisma = new PrismaClient
 
-vi.mock("../../services/Notification.js", () => ({
+vi.mock("../../../services/Notification.js", () => ({
     findUserId: vi.fn(),
     createNotification: vi.fn(),
 }));
 
-vi.mock('../../utils/convertToJson.js', () => ({
+vi.mock('../../../utils/convertToJson.js', () => ({
     default: vi.fn(),
   }));
 

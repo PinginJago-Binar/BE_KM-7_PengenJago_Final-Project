@@ -186,6 +186,126 @@ const updateTransactionById = async (transactionId, data) => {
   });
 }
 
+const getCetakTiketById = async (transactionId) => {
+  return prisma.transaction.findUnique({
+    where: { id: transactionId },
+    select: {
+      order: {
+        select: {
+          bookingCode: true,
+          pasengger: {
+            select: {
+              title: true,
+              passengerType: true,
+              fullname: true,
+              familyName: true,
+              seat: {
+                select: {
+                  code: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      departureFlight: {
+        select: {
+          airplane: {
+            select: {
+              airplaneCode: true,
+              baggage: true,
+              cabinBaggage: true,
+              airline: {
+                select: {
+                  name: true,
+                  logo: true,
+                },
+              },
+            },
+          },
+          price: true,
+          class: true,
+          departureTerminal: {
+            select: { 
+              name: true, 
+            },
+          },
+          departureDate: true,
+          departureTime: true,
+          arrivalDate: true,
+          arrivalTime: true,
+          departureAirport: {
+            select: {
+              name: true,
+              city: {
+                select:{
+                  name: true,
+                },
+              },
+            },
+          },
+          destinationAirport: {
+            select: {
+              name: true,
+              city: {
+                select:{
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      returnFlight: {
+        select: {
+          airplane: {
+            select: {
+              airplaneCode: true,
+              airline: {
+                select: {
+                  name: true,
+                  logo: true,
+                },
+              },
+            },
+          },
+          price: true,
+          departureTerminal: {
+            select: {
+              name: true,
+            },
+          },
+          class: true,
+          departureDate: true,
+          departureTime: true,
+          arrivalDate: true,
+          arrivalTime: true,
+          departureAirport: {
+            select: {
+              name: true,
+              city: {
+                select:{
+                  name: true,
+                },
+              },
+            },
+          },
+          destinationAirport: {
+            select: {
+              name: true,
+              city: {
+                select: {
+                  name: true,
+                }
+              }
+            },
+          },
+        },
+      },
+    },
+  })
+}
+
 export {
   createTransaction,
   getTransactionById,
@@ -193,5 +313,6 @@ export {
   getHistoryAndDetail,
   getTransactionByOrdererId,
   updateTransactionById,
-  groupPassengersByType
+  groupPassengersByType,
+  getCetakTiketById
 }
