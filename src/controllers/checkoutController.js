@@ -551,6 +551,7 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
       const seatIds = passengers.map(passenger => parseInt(passenger.seatId));
 
       await markSeatsAsAvailable(seatIds);      
+      await handlePaymentUpdate(generateStatus(midtransTransactionStatus));
 
       break;
     case "pending":
