@@ -65,8 +65,7 @@ describe("getFlightsController", () => {
       body: {
         departure: "1",
         destination: "2",
-        startDate: "2024-12-20T00:00:00.000Z",
-        endDate: "2024-12-30T23:59:59.999Z",
+        departureDate: "2024-12-25",
         minPrice: 100,
       },
     });
@@ -80,8 +79,8 @@ describe("getFlightsController", () => {
         departureAirport: { cityId: "1" },
         destinationAirport: { cityId: "2" },
         departureDate: {
-          gte: "2024-12-20T00:00:00.000Z",
-          lte: "2024-12-30T23:59:59.999Z",
+          gte: "2024-12-25",
+          lte: "2024-12-25",
         },
         price: {
           gte: 100,
