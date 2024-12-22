@@ -2,7 +2,7 @@ import Joi from 'joi';
 import asyncWrapper from '../utils/asyncWrapper.js'; 
 import convertToJson from "../utils/convertToJson.js"; 
 import { getFlights } from '../services/Flight.js';
-import { getCities } from '../services/City.js'
+import { getCities } from '../services/City.js';
 
 // schema validasi menggunakan Joi
 const flightSearchSchema = Joi.object({
