@@ -516,7 +516,7 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
       case "expire":
         return "cancelled";
       default:
-        return "unknown";
+        return "cancelled";
     }
   };
 

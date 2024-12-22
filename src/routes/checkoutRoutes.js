@@ -8,6 +8,6 @@ checkoutRoutes.get("/:userid/:transactionid", isAuthenticate, getBookingCheckout
 checkoutRoutes.post("/", isAuthenticate, createBookingCheckout);
 checkoutRoutes.put("/", isAuthenticate, storeCheckoutPersonalData);
 checkoutRoutes.post("/payment", isAuthenticate, processPayment);
-checkoutRoutes.post("/notif/payment", paymentNotif);
+checkoutRoutes.post("/payment/notif", paymentNotif);
 
 export default checkoutRoutes;
