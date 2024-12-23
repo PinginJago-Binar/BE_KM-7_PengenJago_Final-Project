@@ -25,6 +25,8 @@ describe("getFavoriteDestinationController", () => {
         id: 1,
         price: 150,
         departureAirport: {
+          id: 101,
+          name: "Soekarno-Hatta International Airport",
           city: {
             id: 1,
             name: "Jakarta",
@@ -37,6 +39,8 @@ describe("getFavoriteDestinationController", () => {
           },
         },
         destinationAirport: {
+          id: 201,
+          name: "Singapore Changi Airport",
           city: {
             id: 2,
             name: "Singapore",
@@ -66,7 +70,7 @@ describe("getFavoriteDestinationController", () => {
         },
         class: "economy",
       },
-    ];
+    ];    
 
     getFlights.mockResolvedValue(mockFlights);
 
@@ -157,8 +161,12 @@ describe("getFavoriteDestinationController", () => {
           flightId: "1",
           departureCityId: "1",
           departureCity: "Jakarta",
+          departureAirportId: "101",
+          departureAirportName: "Soekarno-Hatta International Airport",
           destinationCityId: "2",
           destinationCity: "Singapore",
+          destinationAirportId: "201",
+          destinationAirportName: "Singapore Changi Airport",
           departureDate: "2024-12-25T00:00:00.000Z",
           arrivalDate: "2024-12-25T04:00:00.000Z",
           departureTime: "10:00",
@@ -171,7 +179,7 @@ describe("getFavoriteDestinationController", () => {
           price: 150,
         },
       ],
-    });
+    });    
   });
 
   it("Mengembalikan status 404 jika tidak ada penerbangan", async () => {

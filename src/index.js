@@ -5,6 +5,7 @@ import expressEjsLayouts from "express-ejs-layouts";
 import errorHandler from "./middlewares/errorHandler.js";
 import configureRoutes from "./routes/index.js";
 import path from "path";
+import swagger from "./routes/swagger.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cors());
 
 // routes
 configureRoutes(app);
+swagger(app);
 
 app.use(errorHandler);
 
