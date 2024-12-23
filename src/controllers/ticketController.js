@@ -120,10 +120,11 @@ const createTicket = asyncWrapper(async (req, res) => {
     doc.fontSize(14).fillColor('#2c3e50').text('Passenger Details:', );
     if (ticketData.order?.pasengger && Array.isArray(ticketData.order.pasengger)) {
         ticketData.order.pasengger.forEach((passenger, index) => {
+            const familyName = passenger.familyName || ' ';
             doc.moveDown();
-            doc.fontSize(11).fillColor('#7f8c8d').text(`${index + 1}. ${passenger?.title}. ${passenger?.fullname} ${passenger?.familyName}`);
-            doc.text(`Type: ${passenger?.passengerType || 'Unknown'}`);
-            doc.text(`Seat: ${passenger?.seat?.code || 'Not assigned'}`);
+            doc.fontSize(11).fillColor('#7f8c8d').text(`${index + 1}. ${passenger?.title}. ${passenger?.fullname} ${familyName}`);
+            doc.text(`Type: ${passenger?.passengerType || ' '}`);
+            doc.text(`Seat: ${passenger?.seat?.code || ' '}`);
         });
     }
 
