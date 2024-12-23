@@ -7418,7 +7418,7 @@
                     "schema": {
                       "type": "string"
                     },
-                    "example": "690"
+                    "example": "705"
                   }
                 }
               },
@@ -7428,7 +7428,7 @@
                     "schema": {
                       "type": "string"
                     },
-                    "example": "W/\"2b2-klY3LlLSVW9/Nu8Wv88xlxIIbw8\""
+                    "example": "W/\"2c1-5MiZttdf3oXmHGM1fVIBON4FjoE\""
                   }
                 }
               },
@@ -7438,7 +7438,7 @@
                     "schema": {
                       "type": "string"
                     },
-                    "example": "Mon, 23 Dec 2024 06:24:21 GMT"
+                    "example": "Mon, 23 Dec 2024 07:25:37 GMT"
                   }
                 }
               },
@@ -7493,7 +7493,10 @@
                             "airline": "Delta Airlines",
                             "logo": "delta_logo.png",
                             "seatClass": "business",
-                            "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+                            "airplaneCode": "DL001",
+                            "totalSeat": 64,
+                            "baggage": 20,
+                            "cabinBaggage": 7,
                             "price": "800000"
                           }
                         ]
@@ -7523,7 +7526,10 @@
                       "airline": "Delta Airlines",
                       "logo": "delta_logo.png",
                       "seatClass": "business",
-                      "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+                      "airplaneCode": "DL001",
+                      "totalSeat": 64,
+                      "baggage": 20,
+                      "cabinBaggage": 7,
                       "price": "800000"
                     }
                   ]
@@ -7580,7 +7586,7 @@
                     "schema": {
                       "type": "string"
                     },
-                    "example": "Mon, 23 Dec 2024 06:25:56 GMT"
+                    "example": "Mon, 23 Dec 2024 07:27:33 GMT"
                   }
                 }
               },
@@ -16371,7 +16377,10 @@
               "airline": "Delta Airlines",
               "logo": "delta_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+              "airplaneCode": "DL001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "800000"
             }
           ]
@@ -16397,7 +16406,10 @@
           "airline",
           "logo",
           "seatClass",
-          "airplaneDescription",
+          "airplaneCode",
+          "totalSeat",
+          "baggage",
+          "cabinBaggage",
           "price"
         ],
         "type": "object",
@@ -16453,8 +16465,20 @@
           "seatClass": {
             "type": "string"
           },
-          "airplaneDescription": {
+          "airplaneCode": {
             "type": "string"
+          },
+          "totalSeat": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "baggage": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cabinBaggage": {
+            "type": "integer",
+            "format": "int32"
           },
           "price": {
             "type": "string"
@@ -16478,7 +16502,10 @@
           "airline": "Delta Airlines",
           "logo": "delta_logo.png",
           "seatClass": "business",
-          "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+          "airplaneCode": "DL001",
+          "totalSeat": 64,
+          "baggage": 20,
+          "cabinBaggage": 7,
           "price": "800000"
         }
       },
@@ -16527,7 +16554,10 @@
               "airline": "Garuda Indonesia",
               "logo": "garuda_logo.png",
               "seatClass": "economy",
-              "airplaneDescription": "Boeing 737, Wi-Fi: Available",
+              "airplaneCode": "GA001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "390"
             },
             {
@@ -16548,7 +16578,10 @@
               "airline": "American Airlines",
               "logo": "american_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Airbus A350, Wi-Fi: Available",
+              "airplaneCode": "AA001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "450"
             },
             {
@@ -16569,7 +16602,10 @@
               "airline": "Delta Airlines",
               "logo": "delta_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+              "airplaneCode": "DL001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "500000"
             },
             {
@@ -16590,7 +16626,10 @@
               "airline": "Delta Airlines",
               "logo": "delta_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+              "airplaneCode": "DL001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "800000"
             },
             {
@@ -16611,7 +16650,10 @@
               "airline": "Delta Airlines",
               "logo": "delta_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+              "airplaneCode": "DL001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "800000"
             },
             {
@@ -16632,7 +16674,10 @@
               "airline": "Delta Airlines",
               "logo": "delta_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+              "airplaneCode": "DL001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "800000"
             },
             {
@@ -16653,7 +16698,10 @@
               "airline": "Delta Airlines",
               "logo": "delta_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+              "airplaneCode": "DL001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "1000000"
             },
             {
@@ -16674,7 +16722,10 @@
               "airline": "American Airlines",
               "logo": "american_logo.png",
               "seatClass": "economy",
-              "airplaneDescription": "Airbus A350, Wi-Fi: Available",
+              "airplaneCode": "AA001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "1000000"
             }
           ]
@@ -16725,7 +16776,10 @@
               "airline": "Delta Airlines",
               "logo": "delta_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+              "airplaneCode": "DL001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "800000"
             },
             {
@@ -16746,7 +16800,10 @@
               "airline": "Delta Airlines",
               "logo": "delta_logo.png",
               "seatClass": "business",
-              "airplaneDescription": "Boeing 777, Wi-Fi: Available",
+              "airplaneCode": "DL001",
+              "totalSeat": 64,
+              "baggage": 20,
+              "cabinBaggage": 7,
               "price": "800000"
             }
           ]

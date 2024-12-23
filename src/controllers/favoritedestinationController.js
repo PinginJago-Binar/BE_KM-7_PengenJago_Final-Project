@@ -204,7 +204,10 @@ const getFavoriteDestinationController = asyncWrapper(async (req, res) => {
         airline: flight.airplane.airline.name,
         logo: flight.airplane.airline.logo,
         seatClass: flight.class,
-        airplaneDescription: flight.airplane.description,
+        airplaneCode: flight.airplane.airplaneCode,
+        totalSeat: flight.airplane.totalSeat,
+        baggage: flight.airplane.baggage,
+        cabinBaggage: flight.airplane.cabinBaggage,
         price: flight.price,
       }))
       .sort((a, b) => a.price - b.price);
