@@ -37,18 +37,18 @@ const createTicket = asyncWrapper(async (req, res) => {
 
     
     // Header with gradient 
-    doc.fontSize(22).font('Times-Bold').fillColor('#f39c12').text('PengenJago', {  align: "center", baseline: "middle",continued: true});
-    doc.fontSize(14).text('\nDengan E-Ticket Jadi Lebih Mudah', {align:"center"});
+    doc.fontSize(22).font('Times-Bold').fillColor('#cc00cc').text('SkyFare', {  align: "center", baseline: "middle",continued: true});
+    doc.fontSize(14).text('\nConnecting you to the world', {align:"center"});
     drawSeparator(doc);
 
     doc.moveDown(2);
-    doc.fontSize(12).fillColor('#2980b9').text('Booking Code:', { align: 'right' });
+    doc.fontSize(12).fillColor('#cc00cc').text('Booking Code:', { align: 'right' });
     doc.fontSize(12).fillColor('#34495e').text(`${ticketData.order?.bookingCode || 'N/A'}`, { align: 'right' });
 
     // Flight Info
     drawSeparator(doc);
     doc.moveDown(2);
-    doc.fontSize(14).fillColor('#2980b9').text('Departure Flight', { align: 'center' });
+    doc.fontSize(14).fillColor('#f39c12').text('Departure Flight', { align: 'center' });
     drawSeparator(doc);
 
 
@@ -78,7 +78,7 @@ const createTicket = asyncWrapper(async (req, res) => {
     if (ticketData.returnFlight) {
         drawSeparator(doc);
         doc.moveDown(2);
-        doc.fontSize(14).fillColor('#f39c12').text('Return Flight', { align: 'center' });
+        doc.fontSize(14).fillColor('#cc00cc').text('Return Flight', { align: 'center' });
         drawSeparator(doc);
 
         const returnFlight = ticketData.returnFlight;

@@ -3,6 +3,8 @@ export const mockResponse = () => {
     const res = {};
     res.status = vi.fn().mockImplementation((status) => res);
     res.json = vi.fn();
+    res.setHeader = vi.fn();
+    res.send = vi.fn();
     return res;
   };
   
