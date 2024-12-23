@@ -83,6 +83,8 @@ const deleteNotificationUser = asyncWrapper(async (req, res) => {
             message: 'NotificationId tidak tersedia.'
         })
     }
+
+    const notification = await deleteNotification(notificationId);
     
     return res.status(200).json({
         success: true,
