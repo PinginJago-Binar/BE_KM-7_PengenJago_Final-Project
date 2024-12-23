@@ -47,7 +47,7 @@ const registerController = asyncWrapper(async (req, res) => {
   const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 menit kadaluarsa
 
   // Update OTP ke user
-  const userUpdated = await updateUserOtp(user.id, { otp, otpExpiry });
+  await updateUserOtp(user.id, { otp, otpExpiry });
 
   // Kirim email registrasi dengan template HTML
   const htmlContent = await ejs.renderFile(
@@ -56,9 +56,12 @@ const registerController = asyncWrapper(async (req, res) => {
   );
   await Email(email, "Your OTP Code", htmlContent);
 
+  // Remove sensitive fields
+  const { otp: _, otpExpiry: __, ...userWithoutOtp } = convertToJson(user);
+
   res.status(201).json({
     message: "User registered",
-    user: convertToJson(userUpdated),
+    user: userWithoutOtp,
   });
 });
 
@@ -69,7 +72,7 @@ const login = asyncWrapper(async (req, res) => {
   // Cari user berdasarkan email
   const user = await findUserByEmail(email);
   if (!user) {
-    return res.status(401).json({ message: "Invalid email or password." });
+    return res.status(401).json({ message: "Invalid email." });
   }
 
   // Cek apakah user sudah memverifikasi OTP
@@ -82,7 +85,7 @@ const login = asyncWrapper(async (req, res) => {
   // Validasi password
   const validPassword = await comparePassword(password, user.password);
   if (!validPassword) {
-    return res.status(401).json({ message: "Invalid email or password." });
+    return res.status(401).json({ message: "Invalid password." });
   }
 
   const userJson = convertToJson(user);

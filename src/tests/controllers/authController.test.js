@@ -147,7 +147,7 @@ describe("Auth Controller - registerController", () => {
       });
 
       expect(response.status).toBe(401);
-      expect(response.body.message).toBe("Invalid email or password.");
+      expect(response.body.message).toBe("Invalid email.");
       expect(findUserByEmail).toHaveBeenCalledWith("john@example.com");
     });
 
@@ -192,7 +192,7 @@ describe("Auth Controller - registerController", () => {
       });
 
       expect(response.status).toBe(401);
-      expect(response.body.message).toBe("Invalid email or password.");
+      expect(response.body.message).toBe("Invalid password.");
       expect(findUserByEmail).toHaveBeenCalledWith("john@example.com");
       expect(comparePassword).toHaveBeenCalledWith(
         "password123",
