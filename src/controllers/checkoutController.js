@@ -317,13 +317,13 @@ const processPayment = asyncWrapper(async (req, res, next) => {
     return res.status(404).json({ status: 404, message: 'Transaksi tidak ditemukan!' });
   }
 
-  // if (transaction.snapToken !== null) {
-  //   return res.status(401).json({ status: 401, message: 'Anda sudah pernah membuat pembayaran pada transaksi ini. Cek pada halaman history transaksi untuk melanjutkan pembayaran' });
-  // }
+  if (transaction.snapToken !== null) {
+    return res.status(401).json({ status: 401, message: 'Anda sudah pernah membuat pembayaran pada transaksi ini. Cek pada halaman history transaksi untuk melanjutkan pembayaran' });
+  }
 
-  // if (transaction.status === "issued") {
-  //   return res.status(401).json({ status: 401, message: 'Anda sudah melakukan pembayaran' });
-  // }
+  if (transaction.status === "issued") {
+    return res.status(401).json({ status: 401, message: 'Anda sudah melakukan pembayaran' });
+  }
   
   
   const departureFlightId = parseInt(transaction.departureFlightId);
@@ -533,7 +533,7 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
   const currentTime = new Date();
   const expiryTimeObj = new Date(expiryTime);
 
-  if (currentTime > expiryTimeObj) {    
+  if (transaction.status !== "issued" && currentTime > expiryTimeObj) {    
     await handlePaymentUpdate("cancelled");
 
     const passengers = await getPassengerByOrdererId(orderer.id);
