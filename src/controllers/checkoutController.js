@@ -317,13 +317,13 @@ const processPayment = asyncWrapper(async (req, res, next) => {
     return res.status(404).json({ status: 404, message: 'Transaksi tidak ditemukan!' });
   }
 
-  if (transaction.snapToken !== null) {
-    return res.status(401).json({ status: 401, message: 'Anda sudah pernah membuat pembayaran pada transaksi ini. Cek pada halaman history transaksi untuk melanjutkan pembayaran' });
-  }
+  // if (transaction.snapToken !== null) {
+  //   return res.status(401).json({ status: 401, message: 'Anda sudah pernah membuat pembayaran pada transaksi ini. Cek pada halaman history transaksi untuk melanjutkan pembayaran' });
+  // }
 
-  if (transaction.status === "issued") {
-    return res.status(401).json({ status: 401, message: 'Anda sudah melakukan pembayaran' });
-  }
+  // if (transaction.status === "issued") {
+  //   return res.status(401).json({ status: 401, message: 'Anda sudah melakukan pembayaran' });
+  // }
   
   
   const departureFlightId = parseInt(transaction.departureFlightId);
@@ -489,8 +489,7 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
     fraud_status: fraudStatus,
     payment_type: paymentType,
     expiry_time: expiryTime
-  } = req.body;  
-
+  } = req.body; 
 
   const orderer = await getOrdererByBookingCode(bookingCode);
   if (!orderer) {
@@ -500,7 +499,7 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
   const transaction = await getTransactionByOrdererId(orderer.id);
   if (!transaction) {
     return res.status(404).json({ message: "Transaction not found" });
-  }
+  }  
 
   const transactionId = parseInt(transaction.id);
 
@@ -519,7 +518,7 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
         return "cancelled";
     }
   };
-
+  
   const handlePaymentUpdate = async (status) => {
     await updateTransactionById(transactionId, { status });
 
@@ -529,44 +528,68 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
       await createPaymentDetail(paymentData);
     }
   };
+  
 
-  switch (midtransTransactionStatus) {
-    case "capture":
-      if (fraudStatus === "accept") {
-        await handlePaymentUpdate(generateStatus(midtransTransactionStatus));
-      }
-      break;
+  const currentTime = new Date();
+  const expiryTimeObj = new Date(expiryTime);
 
-    case "settlement":
-      await handlePaymentUpdate(generateStatus(midtransTransactionStatus));
-      break;
+  if (currentTime > expiryTimeObj) {    
+    await handlePaymentUpdate("cancelled");
 
-    case "cancel":
-    case "deny":
-    case "expire":
-      const orderer = await getOrdererByBookingCode(bookingCode);
-      const ordererId = parseInt(orderer.id);
+    const passengers = await getPassengerByOrdererId(orderer.id);
+    const seatIds = passengers.map(passenger => parseInt(passenger.seatId));
+    await markSeatsAsAvailable(seatIds);
 
-      const passengers = await getPassengerByOrdererId(ordererId);
-      const seatIds = passengers.map(passenger => parseInt(passenger.seatId));
-
-      await markSeatsAsAvailable(seatIds);      
-      await handlePaymentUpdate(generateStatus(midtransTransactionStatus));
-
-      break;
-    case "pending":
-      await updateTransactionById(transactionId, {
-        status: generateStatus(midtransTransactionStatus),
-      });
-      break;
-
-    default:
-      console.warn("Unhandled transaction status:", midtransTransactionStatus);
-      break;
+    return res.status(200).json({ message: "Transaction expired. Status updated to 'cancelled'." });
   }
 
-  res.status(200).json({ message: "Payment notification processed successfully" });
+  if (transaction.status !== "cancelled") {
+    try {
+      switch (midtransTransactionStatus) {
+        case "capture":
+          if (fraudStatus === "accept") {
+            await handlePaymentUpdate(generateStatus(midtransTransactionStatus));
+          }
+          break;
+
+        case "settlement":
+          await handlePaymentUpdate(generateStatus(midtransTransactionStatus));
+          break;
+
+        case "cancel":
+        case "deny":
+        case "expire": {
+                      
+          const passengers = await getPassengerByOrdererId(orderer.id);          
+
+          const seatIds = passengers.map(passenger => parseInt(passenger.seatId));
+
+          await Promise.all([
+            handlePaymentUpdate(generateStatus(midtransTransactionStatus)),
+            markSeatsAsAvailable(seatIds),
+          ]);
+
+          break;
+        }
+
+        case "pending":
+          await updateTransactionById(transactionId, {
+            status: generateStatus(midtransTransactionStatus),
+          });
+          break;
+
+        default:
+          console.warn("Unhandled transaction status:", midtransTransactionStatus);
+          break;
+      }
+
+      console.log("Payment notification processed successfully");      
+    } catch (error) {
+      console.error("Error processing notification:", error);      
+    }
+  }
 });
+
 
 
 
