@@ -167,6 +167,8 @@ model Flight {
   returnFlight    Transaction[] @relation("returnFlight")
 
   @@map("flights")
+  @@index([departureAirportId, destinationAirportId], map: "idx_flight_airports")
+  @@index([departureDate, departureTime], map: "idx_flight_schedule")
 }
 
 enum ClassSeat {
@@ -186,6 +188,7 @@ model Orderer {
   transaction Transaction[]
 
   @@map("orderers")
+  @@index([email, numberPhone], map: "idx_orderer_contact")
 }
 
 model Passenger {
@@ -207,6 +210,7 @@ model Passenger {
   seat  Seat?    @relation(fields: [seatId], references: [id])
 
   @@map("passengers")
+  @@index([identityNumber, citizenship], map: "idx_passenger_identity")
 }
 
 enum PassengerType {
@@ -250,6 +254,8 @@ model Transaction {
   returnFlight    Flight?  @relation("returnFlight", fields: [returnFlightId], references: [id])
 
   @@map("transactions")
+  @@index([userId, status], map: "idx_transaction_user_status")
+  @@index([departureFlightId, returnFlightId], map: "idx_transaction_flights")
 }
 
 enum StatusTransaction {
