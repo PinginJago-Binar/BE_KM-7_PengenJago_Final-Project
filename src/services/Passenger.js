@@ -50,8 +50,15 @@ const getPassengerByOrdererId = (ordererId) => {
   });
 }
 
+const getPassengerByOrdererIdWithFilter = (ordererId, filterData) => {
+  return prisma.passenger.findMany({
+    where: { orderedId: ordererId, ...filterData }
+  });
+}
+
 export {
   getPassengerByOrdererId,
+  getPassengerByOrdererIdWithFilter,
   createPassenger,
   groupPassengersByType,
   updatePassengers

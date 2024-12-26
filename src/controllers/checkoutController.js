@@ -8,7 +8,7 @@ import { createEmptyOrderer, getOrdererByBookingCode, getOrdererById, updateOrde
 import { createTransaction, getTransactionByIdAndUser, getTransactionByOrdererId, updateTransactionById } from "../services/Transaction.js";
 import { getAvailableTickets, markSeatsAsBooked, getSeatByIds, markSeatsAsAvailable } from "../services/Seat.js";
 import { getDetailFlightById, getFlightById } from "../services/Flight.js";
-import { createPassenger, getPassengerByOrdererId,groupPassengersByType, updatePassengers } from "../services/Passenger.js";
+import { createPassenger, getPassengerByOrdererId,getPassengerByOrdererIdWithFilter,groupPassengersByType, updatePassengers } from "../services/Passenger.js";
 import { validateBookingData, validateCheckoutPaymentData, validateInitialRequest, validateInitialStoreCheckoutPersonalData, validateStoreCheckoutPersonalData } from "../middlewares/validations/checkoutValidations.js";
 import { createPaymentDetail, getPaymentDetailByTransactionId } from "../services/Payment.js";
 
@@ -123,8 +123,8 @@ const storeCheckoutPersonalData = asyncWrapper(async (req, res, next) => {
   }
 
   const ordererId = parseInt(transaction.ordererId);
-  const emptyPassengers = await getPassengerByOrdererId(ordererId);
-
+  const emptyPassengers = await getPassengerByOrdererIdWithFilter(ordererId, { passengerType: { not: "baby" } });  
+ 
   const updatedOrderer = await updateOrdererById(ordererId, orderer);
   
   let passengerData = passengers.map((passenger, index) => ({    
@@ -139,7 +139,7 @@ const storeCheckoutPersonalData = asyncWrapper(async (req, res, next) => {
   if (transaction.returnFlightId != null) {
     let passengerReturn = passengers.map((passenger, index) => ({
       ...passenger,
-      id: emptyPassengers[emptyPassengers.length - (index + 1)].id,
+      id: emptyPassengers[emptyPassengers.length / 2 + index].id,
       flightType: "return",
       birthDate: new Date(passenger.birthDate).toISOString(),
       expiredAt: new Date(passenger.expiredAt).toISOString(),
@@ -465,11 +465,11 @@ const generateItemDetails = (passengers, prices) => {
       } else {
         return 0;
       }    
-    };
+    };    
 
     return {
       id: passenger.id,
-      name: passenger.fullname,
+      name: passenger.fullname ?? 'baby',
       quantity: 1,
       price: calculatePrice(passenger.passengerType, 1, price),
       category: `${flightType} flight`,
