@@ -587,7 +587,10 @@ const paymentNotif = asyncWrapper(async (req, res, next) => {
     } catch (error) {
       console.error("Error processing notification:", error);      
     }
+
   }
+  
+  return res.status(200).json({ message: "Notification processed successfully" });
 });
 
 
