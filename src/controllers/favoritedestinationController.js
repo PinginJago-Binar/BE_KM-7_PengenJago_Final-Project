@@ -104,7 +104,7 @@ const getFavoriteDestinationController = asyncWrapper(async (req, res) => {
   }
  
   // kondisi
-  const whereCondition = {
+  const criteria = {
     departureDate: {
       gte: startDate,
       ...(endDate && { lte: endDate }),
@@ -174,8 +174,8 @@ const getFavoriteDestinationController = asyncWrapper(async (req, res) => {
   };
 
   try {
-    // menggabungkan whereCondition dengan include
-    const flights = await getFlights({ where: whereCondition, include });
+    // menggabungkan criteria dengan include
+    const flights = await getFlights({ where: criteria, include });
 
     // filter penerbangan berdasarkan kursi yang tersedia
     const filteredFlights = flights.filter((flight) => {
